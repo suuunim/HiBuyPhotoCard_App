@@ -55,10 +55,24 @@
             />
 
         <EditText
-            android:id="@+id/signup_password"
+            android:id="@+id/email_authentication"
             android:layout_width="330dp"
             android:layout_height="40dp"
             android:layout_marginTop="110dp"
+            android:backgroundTint="#605858"
+            android:hint="인증번호"
+            android:layout_marginLeft="10dp"
+            android:maxLength="20"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/signup_email"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+
+        <EditText
+            android:id="@+id/signup_password"
+            android:layout_width="330dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="170dp"
             android:backgroundTint="#605858"
             android:hint="비밀번호"
             android:layout_marginLeft="10dp"
@@ -72,7 +86,7 @@
             android:id="@+id/signup_password_c"
             android:layout_width="330dp"
             android:layout_height="40dp"
-            android:layout_marginTop="170dp"
+            android:layout_marginTop="230dp"
             android:backgroundTint="#605858"
             android:hint="비밀번호 확인"
             android:layout_marginLeft="10dp"
@@ -96,7 +110,7 @@
             android:layout_marginStart="240dp"
             android:layout_marginLeft="25dp"
             android:layout_marginTop="45dp"
-            android:text="중복확인"
+            android:text="인증요청"
             android:textStyle="bold"
             android:textSize="14sp"
             android:textColor="#605858"
@@ -105,7 +119,20 @@
             />
 
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_email"
+            android:layout_width="95dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="240dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="105dp"
+            android:text="인증하기"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:textColor="#605858"
 
+            android:background="@drawable/normal_button"
+            />
 
         <Button
             android:id="@+id/button_signbutton"

@@ -20,11 +20,14 @@
 
         >
 
+
+
+
         <TextView
             android:id="@+id/profile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="119dp"
+            android:layout_marginLeft="115dp"
             android:layout_marginTop="65dp"
             android:text="프로필 설정"
             android:textSize="14sp"
@@ -32,16 +35,19 @@
             android:gravity="center"
             />
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profile_ficture"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
 
-            android:layout_marginLeft="120dp"
-            android:layout_marginTop="100dp"
+            android:layout_marginLeft="110dp"
+            android:layout_marginTop="90dp"
             android:layout_marginRight="15dp"
 
-            android:background="@drawable/circle" />
+            android:background="@drawable/circle"
+
+            />
+
 
         <TextView
 
@@ -49,7 +55,7 @@
             android:layout_height="wrap_content"
 
             android:layout_marginTop="180dp"
-            android:layout_marginLeft="90dp"
+            android:layout_marginLeft="85dp"
             android:text="설정할 프로필 사진을 선택해주세요."
             android:textSize="9sp"
             android:textStyle="bold"
@@ -118,7 +124,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="9dp"
                 android:gravity="center"
-                android:text="나의 최애"
+                android:text="최애 그룹"
                 android:textSize="10sp"
 
                 android:textStyle="bold"
@@ -133,16 +139,17 @@
         </LinearLayout>
 
         <AutoCompleteTextView
+
             android:layout_marginLeft="60dp"
             android:layout_width="250dp"
             android:layout_height="30dp"
-            android:layout_marginTop="280dp"
+            android:layout_marginTop="360dp"
             android:background="@drawable/setting_edittext"
             android:paddingLeft="10dp"
             android:hint="최애를 선택해주세요"
             android:textSize="14sp"
             android:lineHeight="0dp"
-            android:id="@+id/edit"
+            android:id="@+id/signup_love"
             android:completionThreshold="1"
             />
 
@@ -152,12 +159,21 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="60dp"
-            android:layout_marginTop="315dp"
+            android:layout_marginTop="345dp"
             android:gravity="center"
             android:text=" 선택한 최애가 속한 그룹의 팬덤명이 닉네임 옆에 표시됩니다."
             android:textSize="10sp"
             android:textStyle="bold" />
 
+        <LinearLayout
+            android:id="@+id/member_label"
+            android:layout_width="250dp"
+            android:layout_height="40dp"
+
+            android:layout_marginLeft="60dp"
+            android:layout_marginTop="395dp"
+            android:isScrollContainer="true"
+            android:orientation="horizontal" />
 
         <LinearLayout
 
@@ -167,7 +183,7 @@
             android:id="@+id/signup_information_best_idol"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="350dp"
+            android:layout_marginTop="368dp"
             android:orientation="horizontal"
             >
 
@@ -177,7 +193,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:gravity="center"
-                android:text="선호 아이돌"
+
+                android:text="최애 멤버"
                 android:textSize="10sp"
                 android:textStyle="bold" />
 
@@ -189,32 +206,28 @@
             android:layout_marginLeft="60dp"
             android:layout_width="250dp"
             android:layout_height="30dp"
-            android:layout_marginTop="340dp"
+            android:layout_marginTop="280dp"
             android:background="@drawable/setting_edittext"
             android:paddingLeft="10dp"
             android:hint="선호아이돌을 선택해주세요"
             android:textSize="14sp"
             android:lineHeight="0dp"
-            android:id="@+id/edit_favorit"
+            android:id="@+id/signup_favorit"
             android:completionThreshold="1"
             />
 
-
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/button_temp_save"
-            android:layout_width="120dp"
+        <LinearLayout
+            android:id="@+id/group_label"
+            android:layout_width="250dp"
             android:layout_height="40dp"
-            android:background="@drawable/normal_button"
-            android:layout_marginLeft="25dp"
-            android:layout_marginTop="500dp"
-            android:text="임시저장"
-            android:textStyle="bold"
-            android:textSize="14sp"
-            android:textColor="#605858"
 
-
+            android:orientation="horizontal"
+            android:layout_marginLeft="60dp"
+            android:layout_marginTop="313dp"
+            android:isScrollContainer="true"
             />
+
+
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_profile_finish"
@@ -222,11 +235,11 @@
             android:layout_height="40dp"
 
 
-            android:layout_marginTop="500dp"
-            android:text="확인하기"
+            android:layout_marginTop="600dp"
+            android:text="가입하기"
             android:textStyle="bold"
 
-            android:layout_marginLeft="170dp"
+            android:layout_marginLeft="90dp"
             android:textSize="14sp"
             android:textColor="#FFFFFF"
 
