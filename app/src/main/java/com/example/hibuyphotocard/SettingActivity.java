@@ -24,6 +24,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -94,6 +95,7 @@ public class SettingActivity extends AppCompatActivity {
     private LinearLayout member_label;
 
     private List<String> searchKeywordGroup = new ArrayList<String>();
+    private List<String> AllGroup = new ArrayList<String>();
     private List<String> searchKeywordAlbum = new ArrayList<String>();
     private List<String> searchKeywordMember = new ArrayList<String>();
     private DatabaseReference photocardDB;
@@ -107,6 +109,9 @@ public class SettingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profilesetting);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
+
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide(); // actionBar 숨기기
@@ -145,14 +150,35 @@ public class SettingActivity extends AppCompatActivity {
         Finish_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                databaseReference.child("id_list").child(nicknameText.getText().toString()).child("email").setValue(email);
-                databaseReference.child("id_list").child(nicknameText.getText().toString()).child("name").setValue(nicknameText.getText().toString());
-                databaseReference.child("id_list").child(nicknameText.getText().toString()).child("group").setValue(searchKeywordGroup);
-                databaseReference.child("id_list").child(nicknameText.getText().toString()).child("member").setValue(searchKeywordMember);
-                databaseReference.child("id_list").child(nicknameText.getText().toString()).child("image").setValue(selectedImageUri.toString());
 
-                Intent intent = new Intent(SettingActivity.this, MainActivity.class);
-                startActivity(intent);
+                databaseReference.child("id_list").child(nicknameText.getText().toString()).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String value = snapshot.getValue(String.class);
+
+                        if(value!=null){
+                            Toast.makeText(getApplicationContext(),"중복되는 닉네임 입니다",Toast.LENGTH_SHORT).show();//토스메세지 출력
+                        }
+                        else{
+                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("email").setValue(email);
+                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("name").setValue(nicknameText.getText().toString());
+                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("group").setValue(searchKeywordGroup);
+                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("member").setValue(searchKeywordMember);
+                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("image").setValue(selectedImageUri.toString());
+
+                            Intent intent = new Intent(SettingActivity.this, MainActivity.class);
+                            startActivity(intent);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        // 디비를 가져오던중 에러 발생 시
+                        //Log.e("MainActivity", String.valueOf(databaseError.toException())); // 에러문 출력
+                    }
+                });
+
+
             }
         });
         //firebase에서 데이터 불러오기
@@ -161,7 +187,7 @@ public class SettingActivity extends AppCompatActivity {
         groupDB = mDatabase.child("idol");
 
 
-        groupDB.addListenerForSingleValueEvent(new ValueEventListener() {
+        groupDB.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Map<String,Object> group = (Map<String, Object>)snapshot.getValue();
@@ -187,6 +213,10 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
 
+
+
+
+
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -206,10 +236,10 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     public void selectOther(List group) {
-        //앨범 선택
+
         for (int i=0; i <group.size();i++) {
             memberDB = mDatabase.child("idol").child(group.get(i).toString()).child("member");
-            memberDB.addListenerForSingleValueEvent(new ValueEventListener() {
+            memberDB.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     ArrayList member = (ArrayList) snapshot.getValue();
