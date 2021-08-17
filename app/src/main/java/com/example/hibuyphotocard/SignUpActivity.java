@@ -180,7 +180,7 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 //                이메일 인증부분을 보여준다.
-
+                Toast.makeText(getApplicationContext(), "메일을 전송했습니다!", Toast.LENGTH_SHORT).show();
                 //메일을 보내주는 쓰레드
                 MailTread mailTread = new MailTread();
                 mailTread.start();
