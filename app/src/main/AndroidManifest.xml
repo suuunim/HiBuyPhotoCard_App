@@ -23,7 +23,38 @@
         <activity android:name=".SettingActivity" />
         <activity android:name=".FindInfoActivity"
             />
+        <activity android:name=".MyPageMain"/>
+        <activity android:name=".PushSettingActivity"/>
 
+        <activity android:name=".SettingResultActivity"/>
+        <activity android:name=".SearchResultActivity"/>
+
+        <!--        <activity android:name=".MyPageMain"/>-->
+        <!--        <activity android:name=".PushSettingActivity"/>-->
+
+        <!--        <activity android:name=".FragmentActivity"/>-->
+        <activity android:name=".MessageActivity"/>
+        <activity android:name=".FragmentActivity2">
+
+        </activity>
+        <activity android:name=".SellMainActivity"/>
+
+        <activity android:name=".SellItemActivity"/>
+
+        <activity android:name=".BuyMainActivity"/>
+
+        <activity android:name=".BuyItemActivity"/>
+
+        <activity android:name=".ratingActivity"/>
+
+        <activity android:name=".WritingActivity"/>
+
+
+        <activity android:name=".NoResultActivity"/>
+
+        <activity android:name=".WishListActivity"/>
+
+        <activity android:name=".SellPageActivity"/>
     </application>
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>

@@ -40,6 +40,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +53,7 @@ public class SettingActivity extends AppCompatActivity {
     private ArrayList<String> arraylist;
     private FirebaseAuth mAuth;
     int i = 0;
+    private DatabaseReference SellItemList;
 
     DatabaseReference ref;
     private Dialog searchDialog;
@@ -62,7 +64,7 @@ public class SettingActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
     private DatabaseReference groupDB;
     private DatabaseReference fandomDB;
-
+    private DatabaseReference mData;
     private DatabaseReference memberDB;
 
     private AutoCompleteTextView search_Group;
@@ -72,7 +74,13 @@ public class SettingActivity extends AppCompatActivity {
     private List<String> group_list = new ArrayList<String>();
     private List<String> album_list = new ArrayList<String>();
     private List<String> member_list = new ArrayList<String>();
+    private ArrayList<SearchItemList> item; // recyclerview에 적용할 아이템 리스트
+    private ArrayList<SearchItemList> itemList2;  //전송할 리스트
 
+
+    SearchItemList sellItemList;
+
+    private HashMap sell1 = new HashMap();
     private String selectMember ="";
     private LinearLayout group_label;
     private LinearLayout album_label;
@@ -116,7 +124,7 @@ public class SettingActivity extends AppCompatActivity {
         });
 
         nicknameText = findViewById(R.id.signup_nickname);
-
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         Intent intent = getIntent();
         String email = intent.getStringExtra("emailtext");
 
@@ -181,6 +189,7 @@ public class SettingActivity extends AppCompatActivity {
 
 
                             Intent intent = new Intent(SettingActivity.this, MainActivity.class);
+                            intent.putExtra("itemList",item);
                             startActivity(intent);
                         }
                     }
@@ -212,6 +221,61 @@ public class SettingActivity extends AppCompatActivity {
                 search_Group.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+
+                        DatabaseReference mData = FirebaseDatabase.getInstance().getReference(); //firebase 연결
+                        SellItemList = mData.child("Sell");
+
+                        item = new ArrayList<>(); //검색 결과화면으로 넘길 리스트
+                        item.clear();
+
+
+                        SellItemList.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshoted) {
+                                sell1 = (HashMap) snapshoted.getValue();
+                                sell1.size();
+                                for(int i= sell1.size();i>0;i--){
+                                    for(DataSnapshot snap :snapshoted.getChildren() ){
+                                        String sell = snap.getKey();
+                                        String num = sell.replace("sell","");
+                                        Integer num2= Integer.valueOf(num);
+                                        System.out.println(num);
+                                        System.out.println(i);
+                                        System.out.println("----------");
+                                        Log.d("ㅇㅇ","ㄴㅁㅇ");
+                                        if(num2 == i){
+
+                                            sellItemList = snap.getValue(SearchItemList.class);
+                                            item.add(sellItemList);
+                                            break;
+
+                                        }
+                                    }
+                                }
+//                                     for(DataSnapshot snap :snapshoted.getChildren() ){
+////
+//                                         String member = snap.child("memberTag").getValue(String.class);
+////                                   if(member.equals(((TextView)view).getText().toString())){
+//
+//                                             sellItemList = snap.getValue(SearchItemList.class);
+////                                             item.add(sellItemList);
+//                                             item.add(0,sellItemList); //모든 판매글 저장 //최애 맴버의 글만 보여줌
+//
+//
+//
+////
+//                    }
+
+
+                            }
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+
+
                         String dataGroup = parent.getAdapter().getItem(position).toString();
                         if (selectGroup.equals("")){
                             selectGroup=dataGroup;
@@ -270,6 +334,11 @@ public class SettingActivity extends AppCompatActivity {
                     search_Member.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+
+
+
+
                             String dataMemeber = parent.getAdapter().getItem(position).toString();
                             if (selectMember.equals("")) {
                                 selectMember = dataMemeber;
