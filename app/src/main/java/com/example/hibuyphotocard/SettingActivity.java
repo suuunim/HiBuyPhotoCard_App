@@ -78,7 +78,8 @@ public class SettingActivity extends AppCompatActivity {
     private DatabaseReference databaseReference = database.getReference();
     private DatabaseReference mDatabase;
     private DatabaseReference groupDB;
-    private DatabaseReference albumDB;
+    private DatabaseReference fandomDB;
+
     private DatabaseReference memberDB;
 
     private AutoCompleteTextView search_Group;
@@ -93,13 +94,13 @@ public class SettingActivity extends AppCompatActivity {
     private LinearLayout group_label;
     private LinearLayout album_label;
     private LinearLayout member_label;
-
+    private String selectGroup ="";
     private List<String> searchKeywordGroup = new ArrayList<String>();
     private List<String> AllGroup = new ArrayList<String>();
     private List<String> searchKeywordAlbum = new ArrayList<String>();
     private List<String> searchKeywordMember = new ArrayList<String>();
     private DatabaseReference photocardDB;
-
+    private String dataGroup;
     private final int GET_GALLERY_IMAGE = 200;
     private ImageView imageview;
     private FirebaseStorage storage;
@@ -144,6 +145,10 @@ public class SettingActivity extends AppCompatActivity {
 
         search_Member = findViewById(R.id.signup_love);
 
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        groupDB = mDatabase.child("idol");
+        fandomDB=mDatabase.child("fandom");
 
         Button Finish_button = findViewById(R.id.button_profile_finish);
 
@@ -160,11 +165,37 @@ public class SettingActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(),"중복되는 닉네임 입니다",Toast.LENGTH_SHORT).show();//토스메세지 출력
                         }
                         else{
+
+
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("email").setValue(email);
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("name").setValue(nicknameText.getText().toString());
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("group").setValue(searchKeywordGroup);
+
+
+                            String fandomname;
+                            fandomDB.addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    Map<String,String> fandom = (Map<String, String>)snapshot.getValue();
+                                    String groupname=searchKeywordGroup.get(0);
+
+                                    databaseReference.child("id_list").child(nicknameText.getText().toString()).child("mypage").child("fandom").setValue(fandom.get(groupname));
+
+
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
+
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("member").setValue(searchKeywordMember);
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("image").setValue(selectedImageUri.toString());
+                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("mypage").child("deliveryScore").setValue(30);
+                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("mypage").child("itemScore").setValue(30);
+                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("mypage").child("mannerScore").setValue(30);
+
 
                             Intent intent = new Intent(SettingActivity.this, MainActivity.class);
                             startActivity(intent);
@@ -182,9 +213,8 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
         //firebase에서 데이터 불러오기
-        mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        groupDB = mDatabase.child("idol");
+
 
 
         groupDB.addValueEventListener(new ValueEventListener() {
@@ -200,9 +230,17 @@ public class SettingActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         String dataGroup = parent.getAdapter().getItem(position).toString();
-                        createTextView(dataGroup,group_label,"group",searchKeywordGroup);
-                        selectOther(searchKeywordGroup);
-                        search_Group.setText("");
+                        if (selectGroup.equals("")){
+                            selectGroup=dataGroup;
+                            createTextView(dataGroup,group_label,"group",searchKeywordGroup);
+                            selectOther(searchKeywordGroup);
+                            search_Group.setText("");
+                        }
+                        else{
+                            Toast.makeText(SettingActivity.this,
+                                    "하나만 선택해주세요.", Toast.LENGTH_SHORT).show();
+
+                        }
                     }
                 });
             }
