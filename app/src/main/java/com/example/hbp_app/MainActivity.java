@@ -1,0 +1,42 @@
+package com.example.hbp_app;
+
+import android.os.Bundle;
+import android.view.Menu;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+
+public class MainActivity extends AppCompatActivity {
+
+    private FragmentManager manager=getSupportFragmentManager();
+    private FragmentTransaction transaction;
+    BottomNavigationView bottomNavigationView;
+    Menu menu;
+
+    private TextView textView_signIn;
+    private TextView textView_find;
+    private Button login_btn;
+    private FirebaseAuth mAuth;
+    private EditText textView_passwd;
+    private EditText textView_id;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        FragmentTransaction transaction = manager.beginTransaction();
+
+
+    }
+
+
+
+
+}
