@@ -14,6 +14,28 @@ public class SearchItemList implements Serializable {
     private String detail;
     private String state;
 
+    private String title;
+    private String defect;
+    private String email;
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDefect() {
+        return defect;
+    }
+
+    public void setDefect(String defect) {
+        this.defect = defect;
+    }
+
+
+
     public String getState() {
         return state;
     }
@@ -90,5 +112,16 @@ public class SearchItemList implements Serializable {
     public void setImageURI(String imageURI) {
         this.imageURI = imageURI;
     }
+
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+
 
 }

@@ -125,6 +125,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), SellPageActivity.class);
+                intent.putExtra("email",itemList.get(position).getEmail());
                 intent.putExtra("groupTag",itemList.get(position).getGroupTag());
                 intent.putExtra("albumTag",itemList.get(position).getAlbumTag());
                 intent.putExtra("memberTag",itemList.get(position).getMemberTag());
@@ -135,6 +136,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
                 intent.putExtra("price",itemList.get(position).getPrice());
                 intent.putExtra("state",itemList.get(position).getState());
                 intent.putExtra("sellID",itemList.get(position).getSellID());
+                intent.putExtra("defect",itemList.get(position).getDefect());
+                intent.putExtra("title",itemList.get(position).getTitle());
                 if(wish!=null && wish.contains(itemList.get(position).getSellID())){
                     like= true;
                 }

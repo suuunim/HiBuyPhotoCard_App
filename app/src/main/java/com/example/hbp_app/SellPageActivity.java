@@ -1,5 +1,6 @@
 package com.example.hbp_app;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -31,6 +32,8 @@ import com.google.firebase.storage.StorageReference;
 import com.lakue.lakuepopupactivity.PopupActivity;
 import com.lakue.lakuepopupactivity.PopupResult;
 import com.lakue.lakuepopupactivity.PopupType;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,6 +90,12 @@ public class SellPageActivity extends AppCompatActivity {
     private DatabaseReference userProfileDB;
     private Uri imgUri;
 
+    private String userUID;
+    private String sellerUID;
+    private DatabaseReference sellerUidDB;
+    private DatabaseReference userUidDB;
+    private DatabaseReference userInfoDB;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sell_page); // xml 연결
@@ -127,6 +136,23 @@ public class SellPageActivity extends AppCompatActivity {
         mannerScore = findViewById(R.id.mannerScore);
         itemScore = findViewById(R.id.itemScore);
 
+        //사용자 UID 받아오기
+        userUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        //판매자 UID 받아오기
+        sellerUidDB = mDatabase.child("id_list").child(itemUserName).child("UID");
+        sellerUidDB.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                sellerUID = (String)snapshot.getValue();
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
+
+
         userDB = mDatabase.child("id_list").child(itemUserName).child("mypage");
         userDB.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -153,9 +179,6 @@ public class SellPageActivity extends AppCompatActivity {
         imageView = findViewById(R.id.sellListImage); // 포토카드 이미지
         priceView = findViewById(R.id.sellListPrice);
 
-
-
-
         userProfile = findViewById(R.id.userProfile);
         userProfileDB = mDatabase.child("id_list").child(itemUserName).child("image");
         userProfileDB.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -164,13 +187,16 @@ public class SellPageActivity extends AppCompatActivity {
                 String profileUri = (String) snapshot.getValue();
                 storage =FirebaseStorage.getInstance();
                 StorageReference storageReference = storage.getReference();
-                StorageReference riverRef = storageReference.child(profileUri);
-                riverRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        Glide.with(getApplicationContext()).load(uri).into(userProfile);
-                    }
-                });
+                // 프로필 사진 없어도 에러나지 않도록 수정
+                if(profileUri!=null){
+                    StorageReference riverRef = storageReference.child(profileUri);
+                    riverRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            Glide.with(getApplicationContext()).load(uri).into(userProfile);
+                        }
+                    });
+                }
 
                 StorageReference pcRef = storageReference.child(itemImage);
                 pcRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -195,8 +221,6 @@ public class SellPageActivity extends AppCompatActivity {
         deliveryView.setText(itemDelivery);
         userNameView.setText(itemUserName);
         priceView.setText(String.valueOf(itemPrice));
-//        Glide.with(imageView).load(itemImage).into(imageView);
-
         backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -212,7 +236,56 @@ public class SellPageActivity extends AppCompatActivity {
             chatButton.setClickable(false);
         }
 
-       allUsers.addListenerForSingleValueEvent(new ValueEventListener() {
+        String itemDefect = intent.getStringExtra("defect");
+        String itemTitle = intent.getStringExtra("title");
+        String itemEmail = intent.getStringExtra("email");
+    
+        if(email.equals(itemEmail)){
+            chatButton.setText("수정하기");
+            chatButton.setBackgroundColor(Color.parseColor("#FCD54C"));
+            chatButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent3 = new Intent(SellPageActivity.this, SellItemActivity.class);
+                    intent3.putExtra("groupTag",itemGroupTag);
+                    intent3.putExtra("albumTag",itemAlbumTag);
+                    intent3.putExtra("memberTag",itemMemberTag);
+                    intent3.putExtra("detail",itemDetail);
+                    intent3.putExtra("delivery",itemDelivery);
+                    intent3.putExtra("userName",itemUserName);
+                    intent3.putExtra("imageURI",itemImage);
+                    intent3.putExtra("price",itemPrice);
+                    intent3.putExtra("title",itemTitle);
+                    intent3.putExtra("sellID",sellID);
+                    intent3.putExtra("defect",itemDefect);
+                    intent3.putExtra("state",state);
+                    startActivity(intent3);
+                }
+            });
+        }
+        else{
+            //수정된 채팅 버튼 들어가면됨 (아마 혜진이 코드 들어갈 부분)
+
+            chatButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent2 = new Intent(getApplicationContext(), MessageActivity.class);
+                    intent2.putExtra("destinationUid",sellerUID);//uid
+                    ActivityOptions activityOptions = null;
+                    startActivity(intent2);
+
+                }
+            });
+
+
+        }
+
+
+
+
+
+
+        allUsers.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot datas : snapshot.getChildren()) {
@@ -232,7 +305,7 @@ public class SellPageActivity extends AppCompatActivity {
                                     @Override
                                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                                         if(isChecked){ // 찜 누르면 데이터베이스에 추가
-                                           wishListDB.child(String.valueOf(sellID)).setValue(sellID);
+                                            wishListDB.child(String.valueOf(sellID)).setValue(sellID);
                                         }
                                         else { // 취소하면 데이터베이스에서 삭제
                                             wishListDB.child(sellID).removeValue();
@@ -270,7 +343,7 @@ public class SellPageActivity extends AppCompatActivity {
 
     }
 
-        @Override
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {

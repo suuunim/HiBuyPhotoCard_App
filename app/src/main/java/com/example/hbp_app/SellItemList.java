@@ -16,6 +16,16 @@ public class SellItemList {
     private Boolean rateState;
     private String price;
 
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    private String uid;
+
     public SellItemList(){}
 
     public void setTitle(String title) {
@@ -122,5 +132,14 @@ public class SellItemList {
         this.rateState = rateState;
     }
 
+    private String email;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
 }

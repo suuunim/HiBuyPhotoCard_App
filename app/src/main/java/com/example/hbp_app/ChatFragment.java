@@ -1,6 +1,7 @@
 package com.example.hbp_app;
 
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.collection.ArraySet;
 import androidx.fragment.app.Fragment;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.ActivityOptions;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
@@ -17,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -25,9 +28,12 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.annotations.Nullable;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +46,15 @@ import java.util.TreeMap;
 
 public class ChatFragment extends Fragment {
 
+    //하단바
+    private LinearLayout contractBtn;
+    private LinearLayout homeBtn;
+    private LinearLayout chatBtn;
+    private LinearLayout mypageBtn;
+
+
+    private DatabaseReference allchatrooms;
+    private FirebaseAuth mAuth;
 
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd hh:mm");
 
@@ -52,8 +67,53 @@ public class ChatFragment extends Fragment {
         recyclerView.setAdapter(new ChatRecyclerViewAdapter());
         recyclerView.setLayoutManager(new LinearLayoutManager(inflater.getContext()));
 
+
+        //하단바
+        homeBtn = view.findViewById(R.id.homeBtn);
+        homeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(view.getContext(), MainActivity.class);
+                startActivity(intent);
+
+            }
+        });
+
+        chatBtn = view.findViewById(R.id.chatBtn);
+        chatBtn.setBackgroundColor(Color.parseColor("#B1E3FF"));
+
+
+        mypageBtn = view.findViewById(R.id.mypageBtn);
+        mypageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(), MyPageMain.class);
+                startActivity(intent);
+
+            }
+        });
+
+
+        contractBtn = view.findViewById(R.id.contractBtn);
+        contractBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(view.getContext(), WritingActivity.class);
+                startActivity(intent);
+
+            }
+        });
+
+
+
+
         return view;
     }
+
+
+
+
+
 
 
     class ChatRecyclerViewAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHolder>{
@@ -155,6 +215,10 @@ public class ChatFragment extends Fragment {
                 }
             });
 
+            mAuth = FirebaseAuth.getInstance();
+            mAuth.getUid();
+            String 내uid= mAuth.getUid();
+            String 상대uid=destinationUsers.get(position);
             customViewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
@@ -168,6 +232,37 @@ public class ChatFragment extends Fragment {
                                 chatModels.remove(position);
                                 notifyItemRemoved(position);
                                 notifyItemRangeChanged(position, chatModels.size());
+
+                                allchatrooms = FirebaseDatabase.getInstance().getReference().child("chatrooms");
+                                allchatrooms.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                    @Override
+                                    public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                                        int i=0;
+                                        for (DataSnapshot datas : snapshot.getChildren()) {
+                                            i++;
+//                                            System.out.println(datas.child("users").getValue().toString());
+                                            String com = datas.child("users").getValue().toString();
+                                            System.out.println(com+"////////");
+
+                                            if(com.contains(내uid)){
+                                                if(com.contains(상대uid)){
+                                                    String delete = datas.getKey().toString();
+                                                    allchatrooms.child(delete).removeValue();
+                                                    break;
+                                                }
+                                            }
+
+
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+                                    }
+                                });
+
                             }
                         });
 

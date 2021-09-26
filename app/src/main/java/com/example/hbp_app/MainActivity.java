@@ -13,13 +13,17 @@ import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,9 +32,11 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.security.cert.PolicyNode;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-//    private Button search_button; //메인 내 dialog 창 띄우는 버튼
+    //    private Button search_button; //메인 내 dialog 창 띄우는 버튼
     private RecyclerView recyclerView2;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
@@ -39,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<SearchItemList> item; // recyclerview에 적용할 아이템 리스트
     private ArrayList<SearchItemList> itemList2;  //전송할 리스트
+
+    private HashMap sell1 = new HashMap();
+
 
     public boolean makeLabel = false;
     SearchItemList sellItemList;
@@ -54,26 +63,12 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout chatBtn;
     private LinearLayout mypageBtn;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
-
-        itemList2 = (ArrayList<SearchItemList>) getIntent().getSerializableExtra("itemList"); // 넘어온 검색 아이템 받기
-
-
-        recyclerView2 = findViewById(R.id.recyclerview2);
-
-
-        int numberOfColumns = 2; //컬럼 2개로
-        int spacing = 30;
-        boolean includeEdge = true;
-        recyclerView2.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
-        recyclerView2.addItemDecoration(new GridSpacingItemDecoration(numberOfColumns, spacing, includeEdge));
-
-        adapter = new SearchAdapter(itemList2,this);
-        recyclerView2.setAdapter(adapter);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         SearchDialogActivity dialog = new SearchDialogActivity(MainActivity.this);
 
@@ -121,11 +116,71 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        item = new ArrayList<>();
+        item.clear();
 
 
+
+        recyclerView2 = findViewById(R.id.recyclerview2);
+
+
+        int numberOfColumns = 2; //컬럼 2개로
+        int spacing = 30;
+        boolean includeEdge = true;
+        recyclerView2.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
+        recyclerView2.addItemDecoration(new GridSpacingItemDecoration(numberOfColumns, spacing, includeEdge));
+
+        adapter = new SearchAdapter(item, this);
+        recyclerView2.setAdapter(adapter);
 
     }
-}
 
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        item.clear();
+        getWish();
+        adapter.notifyDataSetChanged();
+    }
+
+    public void getWish() {
+        DatabaseReference mData = FirebaseDatabase.getInstance().getReference(); //firebase 연결
+        SellItemList = mData.child("Sell");
+        SellItemList.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshoted) {
+                sell1 = (HashMap) snapshoted.getValue();
+                sell1.size();
+                for (int i = sell1.size(); i > 0; i--) {
+                    for (DataSnapshot snap : snapshoted.getChildren()) {
+                        String sell = snap.getKey();
+                        String num = sell.replace("sell", "");
+                        Integer num2 = Integer.valueOf(num);
+                        System.out.println(num);
+                        System.out.println(i);
+                        System.out.println("----------");
+                        Log.d("ㅇㅇ", "ㄴㅁㅇ");
+                        if (num2 == i) {
+
+                            sellItemList = snap.getValue(SearchItemList.class);
+                            item.add(sellItemList);
+                            break;
+
+                        }
+                    }
+                }
+                adapter.notifyDataSetChanged();
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+}
 
 

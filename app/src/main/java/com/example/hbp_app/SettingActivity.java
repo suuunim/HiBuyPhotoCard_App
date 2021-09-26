@@ -64,7 +64,7 @@ public class SettingActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
     private DatabaseReference groupDB;
     private DatabaseReference fandomDB;
-    private DatabaseReference mData;
+    private FirebaseDatabase mData;
     private DatabaseReference memberDB;
 
     private AutoCompleteTextView search_Group;
@@ -120,6 +120,7 @@ public class SettingActivity extends AppCompatActivity {
                 Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
                 startActivityForResult(intent, GET_GALLERY_IMAGE);
+
             }
         });
 
@@ -137,7 +138,7 @@ public class SettingActivity extends AppCompatActivity {
         search_Member = findViewById(R.id.signup_love);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
+        mData=FirebaseDatabase.getInstance();
         groupDB = mDatabase.child("idol");
         fandomDB=mDatabase.child("fandom");
 
@@ -157,7 +158,9 @@ public class SettingActivity extends AppCompatActivity {
                         }
                         else{
 
-
+                            FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getUid()).child("profileImageUrl").setValue(selectedImageUri.toString());
+                            FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getUid()).child("uid").setValue(mAuth.getUid());
+                            FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getUid()).child("userName").setValue(nicknameText.getText().toString());
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("email").setValue(email);
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("name").setValue(nicknameText.getText().toString());
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("group").setValue(searchKeywordGroup);
@@ -180,6 +183,11 @@ public class SettingActivity extends AppCompatActivity {
 
                                 }
                             });
+
+
+
+
+
 
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("member").setValue(searchKeywordMember);
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("image").setValue(selectedImageUri.toString());

@@ -25,6 +25,7 @@
             />
         <activity android:name=".MyPageMain"/>
         <activity android:name=".PushSettingActivity"/>
+        <activity android:name=".ChangeSettingActivity"/>
 
         <activity android:name=".SettingResultActivity"/>
         <activity android:name=".SearchResultActivity"/>

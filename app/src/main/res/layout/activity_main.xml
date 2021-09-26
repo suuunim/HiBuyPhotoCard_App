@@ -111,7 +111,7 @@
             android:id="@+id/bottomNav"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight="1.2"
             app:layout_constraintStart_toStartOf="@id/recyclerview2"
             android:background="#ffffff"
             android:weightSum="4"
@@ -131,7 +131,7 @@
                     android:layout_height="match_parent"
                     android:layout_marginTop="3dp"
                     android:layout_weight="4"
-                    android:padding="12dp"
+                    android:padding="9dp"
                     android:src="@drawable/contract" />
 
                 <TextView
@@ -154,7 +154,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="4"
-                    android:padding="12dp"
+                    android:padding="9dp"
                     android:src="@drawable/house" />
 
                 <TextView
@@ -180,7 +180,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="4"
-                    android:padding="12dp"
+                    android:padding="9dp"
                     android:src="@drawable/chat" />
 
                 <TextView
@@ -204,7 +204,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="4"
-                    android:padding="15dp"
+                    android:padding="11dp"
                     android:src="@drawable/mypage" />
 
                 <TextView

@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,19 +38,20 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.annotations.Nullable;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.net.URL;
 import java.util.ArrayList;
 
 public class MyPageMain<CircularImageView> extends AppCompatActivity {
-
+    private String imageUrl;
     private TextView TextView_설정;
     private TextView TextView_개발자문의;
     private TextView TextView_선호아이돌;
     private TextView textview_점수1;
     private TextView textview_점수2;
     private TextView textview_점수3;
-
+    private Uri imgUri;
     private ImageView ImageView_photo;
     private TextView userName;
     private String email;
@@ -58,6 +60,7 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
 
     private TextView wishBtn;
     private TextView purchaseBtn;
+    private TextView ChangemypageBtn;
 
     private FirebaseAuth mAuth;
     private final FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -89,6 +92,20 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mypage);
+
+        ChangemypageBtn=findViewById(R.id.changemypageBtn);
+
+        ChangemypageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(MyPageMain.this,ChangeSettingActivity.class);
+                intent.putExtra("user_nickName",nickName);
+                intent.putExtra("user_email",email);
+                intent.putExtra("user_image",imageUrl);
+                startActivity(intent);
+
+            }
+        });
 
         purchaseBtn = findViewById(R.id.purchaseBtn);
         purchaseBtn.setOnClickListener(new View.OnClickListener() {
@@ -163,6 +180,18 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
                         userName = findViewById(R.id.userName);
                         userName.setText(nickName);
 
+                        DatabaseReference fandomDB = mDatabase.child("id_list").child(nickName).child("mypage");
+                        fandomDB.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                userName.setText("'"+snapshot.child("fandom").getValue(String.class)+"'"+"인 "+nickName);
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
 
 
                         memberDB = mDatabase.child("id_list").child(nickName).child("member");
@@ -181,14 +210,28 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
 
 
 
-
                         imageDB = mDatabase.child("id_list").child(nickName).child("image");
                         imageDB.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
                                 String imageUrl = snapshot.getValue(String.class);
                                 ImageView_photo = findViewById(R.id.ImageView_photo);
-                                ImageView_photo.setImageURI(Uri.parse(imageUrl));
+//                                ImageView_photo.setImageURI(Uri.parse(imageUrl));
+
+
+                                storage = FirebaseStorage.getInstance();
+                                StorageReference storageReference = storage.getReference();
+                                StorageReference riversRef = storageReference.child(imageUrl);
+                                riversRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        Glide.with(ImageView_photo).load(uri).into(ImageView_photo);
+                                    }
+                                });
+
+
+
+
 
                             }
 
@@ -197,6 +240,8 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
 
                             }
                         });
+
+
 
 
 
