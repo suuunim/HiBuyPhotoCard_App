@@ -237,53 +237,6 @@ public class SettingActivity extends AppCompatActivity {
                         item = new ArrayList<>(); //검색 결과화면으로 넘길 리스트
                         item.clear();
 
-
-                        SellItemList.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshoted) {
-                                sell1 = (HashMap) snapshoted.getValue();
-                                sell1.size();
-                                for(int i= sell1.size();i>0;i--){
-                                    for(DataSnapshot snap :snapshoted.getChildren() ){
-                                        String sell = snap.getKey();
-                                        String num = sell.replace("sell","");
-                                        Integer num2= Integer.valueOf(num);
-                                        System.out.println(num);
-                                        System.out.println(i);
-                                        System.out.println("----------");
-                                        Log.d("ㅇㅇ","ㄴㅁㅇ");
-                                        if(num2 == i){
-
-                                            sellItemList = snap.getValue(SearchItemList.class);
-                                            item.add(sellItemList);
-                                            break;
-
-                                        }
-                                    }
-                                }
-//                                     for(DataSnapshot snap :snapshoted.getChildren() ){
-////
-//                                         String member = snap.child("memberTag").getValue(String.class);
-////                                   if(member.equals(((TextView)view).getText().toString())){
-//
-//                                             sellItemList = snap.getValue(SearchItemList.class);
-////                                             item.add(sellItemList);
-//                                             item.add(0,sellItemList); //모든 판매글 저장 //최애 맴버의 글만 보여줌
-//
-//
-//
-////
-//                    }
-
-
-                            }
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });
-
-
                         String dataGroup = parent.getAdapter().getItem(position).toString();
                         if (selectGroup.equals("")){
                             selectGroup=dataGroup;

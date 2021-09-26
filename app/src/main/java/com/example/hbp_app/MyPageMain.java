@@ -214,23 +214,22 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
                         imageDB.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                String imageUrl = snapshot.getValue(String.class);
+                                imageUrl = snapshot.getValue(String.class);
+                                storage=FirebaseStorage.getInstance();
+                                StorageReference storageReference=storage.getReference();
+                                StorageReference riverRef=storageReference.child(imageUrl);
+
                                 ImageView_photo = findViewById(R.id.ImageView_photo);
-//                                ImageView_photo.setImageURI(Uri.parse(imageUrl));
 
 
-                                storage = FirebaseStorage.getInstance();
-                                StorageReference storageReference = storage.getReference();
-                                StorageReference riversRef = storageReference.child(imageUrl);
-                                riversRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+
+                                riverRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
                                     public void onSuccess(Uri uri) {
-                                        Glide.with(ImageView_photo).load(uri).into(ImageView_photo);
+                                        Glide.with(getApplicationContext()).load(uri).into(ImageView_photo);
+                                        imgUri=uri;
                                     }
                                 });
-
-
-
 
 
                             }
@@ -240,6 +239,8 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
 
                             }
                         });
+
+
 
 
 

@@ -99,7 +99,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Intent intent = new Intent(getApplicationContext(), SettingActivity.class);
+                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 //                            intent.putExtra("itemList",item);
                             startActivity(intent);
                             finish();
