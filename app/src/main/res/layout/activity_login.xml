@@ -107,30 +107,4 @@ android:layout_marginTop="5dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView_passwd" />
 
-    <com.google.android.gms.common.SignInButton
-
-
-        android:id="@+id/google_button"
-        app:layout_constraintTop_toBottomOf="@+id/textView_passwd"
-        android:layout_width="170dp"
-        android:layout_height="35dp"
-        android:background="@drawable/googlelogo"
-        android:layout_marginTop="15dp"
-        android:layout_marginLeft="18dp"
-        app:layout_constraintStart_toStartOf="parent"
-        />
-
-    <ImageButton
-        android:id="@+id/kakao_button"
-
-        android:layout_width="170dp"
-        android:layout_height="35dp"
-        android:background="@drawable/kakaologo"
-
-        android:layout_marginLeft="220dp"
-        android:layout_marginTop="15dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView_passwd"
-        />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
