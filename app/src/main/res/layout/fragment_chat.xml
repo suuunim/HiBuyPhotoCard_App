@@ -9,20 +9,26 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
             android:weightSum="10">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/chatfragment_recyclerview"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginEnd="20dp"
                     android:layout_weight="9"
-                    android:layout_marginTop="10dp"
-                    android:scrollbars="vertical"
-                    android:layout_marginBottom="5dp"/>
+                        >
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/chatfragment_recyclerview"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="20dp"
+                            android:layout_marginEnd="20dp"
+                            android:layout_marginTop="10dp"
+                            android:scrollbars="vertical"
+                            android:layout_marginBottom="5dp"/>
+
+                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/bottomNav"
@@ -54,7 +60,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-
                                     android:textSize="10dp"
                                     android:text="글쓰기"
                                     android:layout_gravity="center"
