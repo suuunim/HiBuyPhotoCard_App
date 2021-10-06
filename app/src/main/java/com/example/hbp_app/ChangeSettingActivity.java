@@ -73,6 +73,7 @@ public class ChangeSettingActivity extends AppCompatActivity {
     private FirebaseDatabase mData;
     private DatabaseReference mypageDB;
     private DatabaseReference memberDB;
+    private DatabaseReference idolDB;
     private DatabaseReference UIDDB;
     private DatabaseReference SellDB;
     private DatabaseReference selectGroupDB;
@@ -120,10 +121,10 @@ public class ChangeSettingActivity extends AppCompatActivity {
     String useremail;
     String userimage;
     String changenickname;
-    Map<String,String> sell_hashMap;
+    ArrayList sell_hashMap;
     Map<Integer,String> group_hashMap;
     Map<Integer,String> member_hashMap;
-
+    int check=0;
     private DatabaseReference checkIdol;
 
     @Override
@@ -183,7 +184,7 @@ public class ChangeSettingActivity extends AppCompatActivity {
         SellDB.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                sell_hashMap = (HashMap<String, String>) dataSnapshot.getValue();
+                sell_hashMap = (ArrayList) dataSnapshot.getValue();
 
             }
             @Override
@@ -313,10 +314,17 @@ public class ChangeSettingActivity extends AppCompatActivity {
 
         mData=FirebaseDatabase.getInstance();
 
+
         Button Finish_button = findViewById(R.id.button_profile_Change);
         Finish_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
+
+
+
+
                 checkIdol = databaseReference.child("idol").child(selectGroup).child("member");
                 checkIdol.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -330,7 +338,7 @@ public class ChangeSettingActivity extends AppCompatActivity {
 
                                     String value = snapshot.getValue(String.class);
 
-                                    
+
 
                                         dataRef = mData.getReference();
                                         nameRef = dataRef.child("id_list").child(usernickname);
@@ -359,6 +367,13 @@ public class ChangeSettingActivity extends AppCompatActivity {
                                         });
 
                                         databaseReference.child("id_list").child(nicknameText.getText().toString()).child("member").setValue(searchKeywordMember);
+
+
+
+
+
+
+
                                         if (selectedImageUri == null){
                                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("image").setValue(userimage);
                                         }
@@ -371,9 +386,9 @@ public class ChangeSettingActivity extends AppCompatActivity {
                                         databaseReference.child("id_list").child(nicknameText.getText().toString()).child("UID").setValue(UID);
 
 
-                                        for(String key : sell_hashMap.keySet()){
-                                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("sell").child(key).setValue(key);
-                                            databaseReference.child("Sell").child(key).child("userName").setValue(nicknameText.getText().toString());
+                                        for(int i=0;i<sell_hashMap.size();i++){
+                                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("sell").child(String.valueOf(i)).setValue(sell_hashMap.get(i).toString());
+                                            databaseReference.child("Sell").child(sell_hashMap.get(i).toString()).child("userName").setValue(nicknameText.getText().toString());
 
                                         }
 
