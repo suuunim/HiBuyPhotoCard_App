@@ -34,20 +34,17 @@
             />
 
 
-
-
-
-
         <EditText
             android:id="@+id/signup_email"
-            android:layout_width="330dp"
+            android:layout_width="235dp"
             android:layout_height="40dp"
-            android:layout_marginTop="50dp"
             android:layout_gravity="center"
             android:layout_marginLeft="10dp"
+            android:layout_marginTop="50dp"
             android:backgroundTint="#605858"
             android:hint="아이디 (이메일 주소)"
             android:maxLength="20"
+            android:singleLine="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/signup_signup"
             app:layout_constraintTop_toTopOf="parent"

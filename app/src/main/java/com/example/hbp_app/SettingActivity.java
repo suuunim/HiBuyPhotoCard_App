@@ -30,6 +30,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -94,9 +95,13 @@ public class SettingActivity extends AppCompatActivity {
     private String dataGroup;
     private final int GET_GALLERY_IMAGE = 200;
     private ImageView imageview;
+    private ImageView explain_button;
     private FirebaseStorage storage;
     Uri selectedImageUri;
     EditText nicknameText;
+    TextView txtResult;
+    private String uid;
+    FirebaseUser user;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,12 +110,27 @@ public class SettingActivity extends AppCompatActivity {
 
 
 
+
+
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide(); // actionBar 숨기기
 
-
+        SearchDialogActivity dialog = new SearchDialogActivity(SettingActivity.this);
         imageview = (ImageView) findViewById(R.id.profile_ficture);
         imageview.setBackground(new ShapeDrawable(new OvalShape()));
+
+        explain_button = (ImageView) findViewById(R.id.explanation_button);
+        explain_button.setBackground(new ShapeDrawable(new OvalShape()));
+
+        PopupDialogActivity explain_dialog = new PopupDialogActivity(SettingActivity.this);
+
+
+        explain_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                explain_dialog.showDialog();
+            }
+        });
 
 
         storage = FirebaseStorage.getInstance();
@@ -141,6 +161,8 @@ public class SettingActivity extends AppCompatActivity {
         mData=FirebaseDatabase.getInstance();
         groupDB = mDatabase.child("idol");
         fandomDB=mDatabase.child("fandom");
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        uid = user.getUid();
 
         Button Finish_button = findViewById(R.id.button_profile_finish);
 
@@ -156,15 +178,20 @@ public class SettingActivity extends AppCompatActivity {
                         if(value!=null){
                             Toast.makeText(getApplicationContext(),"중복되는 닉네임 입니다",Toast.LENGTH_SHORT).show();//토스메세지 출력
                         }
+                        else if(searchKeywordGroup.size()==0|| searchKeywordMember.size()==0){
+                            Toast.makeText(getApplicationContext(),"그룹 또는 멤버를 선택해주세요",Toast.LENGTH_SHORT).show();//토스메세지 출력
+                        }
+                        else if(nicknameText.getText().toString().equals("")||nicknameText.getText().toString()==null){
+                            Toast.makeText(getApplicationContext(),"닉네임을 입력해주세요",Toast.LENGTH_SHORT).show();//토스메세지 출력
+                        }
                         else{
 
-                            FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getUid()).child("profileImageUrl").setValue(selectedImageUri.toString());
-                            FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getUid()).child("uid").setValue(mAuth.getUid());
-                            FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getUid()).child("userName").setValue(nicknameText.getText().toString());
+                            FirebaseDatabase.getInstance().getReference().child("users").child(uid).child("profileImageUrl").setValue(selectedImageUri.toString());
+                            FirebaseDatabase.getInstance().getReference().child("users").child(uid).child("uid").setValue(uid);
+                            FirebaseDatabase.getInstance().getReference().child("users").child(uid).child("userName").setValue(nicknameText.getText().toString());
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("email").setValue(email);
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("name").setValue(nicknameText.getText().toString());
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("group").setValue(searchKeywordGroup);
-
 
                             String fandomname;
                             fandomDB.addValueEventListener(new ValueEventListener() {
@@ -174,8 +201,6 @@ public class SettingActivity extends AppCompatActivity {
                                     String groupname=searchKeywordGroup.get(0);
 
                                     databaseReference.child("id_list").child(nicknameText.getText().toString()).child("mypage").child("fandom").setValue(fandom.get(groupname));
-
-
                                 }
 
                                 @Override
@@ -184,11 +209,7 @@ public class SettingActivity extends AppCompatActivity {
                                 }
                             });
 
-
-
-
-
-
+                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("UID").setValue(uid);
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("member").setValue(searchKeywordMember);
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("image").setValue(selectedImageUri.toString());
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("mypage").child("deliveryScore").setValue(30);
@@ -199,6 +220,7 @@ public class SettingActivity extends AppCompatActivity {
                             Intent intent = new Intent(SettingActivity.this, MainActivity.class);
                             intent.putExtra("itemList",item);
                             startActivity(intent);
+
                         }
                     }
 
