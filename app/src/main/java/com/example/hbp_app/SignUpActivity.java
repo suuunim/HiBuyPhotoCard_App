@@ -172,20 +172,28 @@ public class SignUpActivity extends AppCompatActivity {
         Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+            if(emailText.getText().toString().equals("")){
+                Toast.makeText(getApplicationContext(), "메일을 입력해주세요", Toast.LENGTH_SHORT).show();
+            }
+            else if(emailText.getText().toString().equals("null")){
+                Toast.makeText(getApplicationContext(), "메일을 입력해주세요", Toast.LENGTH_SHORT).show();
+            }
+            else {
 //                이메일 인증부분을 보여준다.
                 Toast.makeText(getApplicationContext(), "메일을 전송했습니다!", Toast.LENGTH_SHORT).show();
                 //메일을 보내주는 쓰레드
                 MailTread mailTread = new MailTread();
                 mailTread.start();
 
-                if(mailSend==0){
-                    value=180;
+                if (mailSend == 0) {
+                    value = 180;
                     //쓰레드 객체 생성
                     BackgrounThread backgroundThread = new BackgrounThread();
                     //쓰레드 스타트
                     backgroundThread.start();
-                    mailSend+=1;
-                }else{
+                    mailSend += 1;
+                } else {
                     value = 180;
                 }
 
@@ -194,8 +202,8 @@ public class SignUpActivity extends AppCompatActivity {
 
 
 //핸들러 객체 생성
-                mainHandler=new MainHandler();
-
+                mainHandler = new MainHandler();
+            }
             }
         });
 
@@ -212,7 +220,16 @@ public class SignUpActivity extends AppCompatActivity {
                     SignButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+
+
+
+
                             signUp();
+
+
+
+
+
                         }
                     });
                 }else{
@@ -236,14 +253,7 @@ public class SignUpActivity extends AppCompatActivity {
 
 
 
-        Google_Login = findViewById(R.id.google_button);
-        Google_Login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-                startActivityForResult(signInIntent,RC_SIGN_IN);
-            }
-        });
+
     }
 
     @Override
