@@ -4,49 +4,63 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-
+import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
+import org.tensorflow.lite.support.common.FileUtil;
+import org.tensorflow.lite.support.common.TensorOperator;
+import org.tensorflow.lite.support.common.TensorProcessor;
+import org.tensorflow.lite.support.common.ops.NormalizeOp;
+import org.tensorflow.lite.support.image.ImageProcessor;
+import org.tensorflow.lite.support.image.TensorImage;
+import org.tensorflow.lite.support.image.ops.ResizeOp;
+import org.tensorflow.lite.support.image.ops.ResizeWithCropOrPadOp;
+import org.tensorflow.lite.support.label.TensorLabel;
+import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 
 public class infertestactivity extends AppCompatActivity {
+    private  int imageSizeX;
+    private  int imageSizeY;
+    private Bitmap bitmap;
+    private MappedByteBuffer tfliteModel;
+    private TensorImage inputImageBuffer;
+    private  TensorBuffer outputProbabilityBuffer;
+    private  TensorProcessor probabilityProcessor;
+    protected Interpreter tflite;
 
+    Uri imageuri;
 
-    private FirebaseDatabase database = FirebaseDatabase.getInstance();
-    Uri selectedImageUri;
-    private DatabaseReference databaseReference = database.getReference();
-    private DatabaseReference mDatabase;
-
-    private FirebaseDatabase mData;
     EditText infer_Result;
     private final int GET_GALLERY_IMAGE = 200;
     private ImageView imageview;
-
-    private FirebaseStorage storage;
+    private static final float IMAGE_MEAN = 0.0f;
+    private static final float IMAGE_STD = 1.0f;
+    private static final float PROBABILITY_MEAN = 0.0f;
+    private static final float PROBABILITY_STD = 255.0f;
+    private List<String> labels;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,52 +81,46 @@ public class infertestactivity extends AppCompatActivity {
 
         infer_Result = findViewById(R.id.infer_result);
 
-        storage = FirebaseStorage.getInstance();
+
         imageview.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
-                startActivityForResult(intent, GET_GALLERY_IMAGE);
+                Intent intent=new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent,"Select Picture"),12);
 
             }
         });
-
+        try{
+            tflite=new Interpreter(loadmodelfile(infertestactivity.this));
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
         Button infer_finish=findViewById(R.id.buttoninfer);
         infer_finish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BitmapDrawable drawable = (BitmapDrawable) imageview.getDrawable();
-                Bitmap bitmap_1 = drawable.getBitmap();
-                Bitmap bitmap = Bitmap.createScaledBitmap(bitmap_1, 224, 224, true);
-                ByteBuffer input = ByteBuffer.allocateDirect(224 * 224 * 3 * 4).order(ByteOrder.nativeOrder());
-                int batchNum = 0;
-//
-//            //이미지 뷰에 선택한 사진 띄우기
-//
-                float[][] bytes_img = new float[1][50176];
-//            // x,y 최댓값 사진 크기에 따라 달라짐 (조절 해줘야함)
-                for (int x = 0; x < 224; x++) {
-                    for (int y = 0; y < 224; y++) {
-                        int pixel = bitmap.getPixel(x, y);
-                        bytes_img[0][y*224+x] = (pixel & 0xff) / (float) 255;
-                    }
-                }
-                float[][] output = new float[1][249];
 
-//            // 자신의 tflite 이름 써주기
-                Interpreter lite = getTfliteInterpreter("model.tflite");
-                lite.run(bytes_img, output);
+                int imageTensorIndex = 0;
+                int[] imageShape = tflite.getInputTensor(imageTensorIndex).shape(); // {1, height, width, 3}
+                imageSizeY = imageShape[1];
+                imageSizeX = imageShape[2];
+                DataType imageDataType = tflite.getInputTensor(imageTensorIndex).dataType();
 
-                int max_index =0;
-                float max = output[1][0];
-                for(int i=1 ; i<output.length ; i++) {
-                    if(output[1][i]>max) {
-                        max = output[1][i];
-                        max_index=i;
-                    }
-                }
-                infer_Result.setText(max_index);
+                int probabilityTensorIndex = 0;
+                int[] probabilityShape =
+                        tflite.getOutputTensor(probabilityTensorIndex).shape(); // {1, NUM_CLASSES}
+                DataType probabilityDataType = tflite.getOutputTensor(probabilityTensorIndex).dataType();
+
+                inputImageBuffer = new TensorImage(imageDataType);
+                outputProbabilityBuffer = TensorBuffer.createFixedSize(probabilityShape, probabilityDataType);
+                probabilityProcessor = new TensorProcessor.Builder().add(getPostprocessNormalizeOp()).build();
+
+                inputImageBuffer = loadImage(bitmap);
+
+                tflite.run(inputImageBuffer.getBuffer(),outputProbabilityBuffer.getBuffer().rewind());
+                showresult();
 
 
             }
@@ -122,41 +130,89 @@ public class infertestactivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK && data != null && data.getData() != null) {
 
-            selectedImageUri = data.getData();
-            imageview.setImageURI(selectedImageUri);
-            StorageReference storageRef = storage.getReference();
-            StorageReference riversRef = storageRef.child(selectedImageUri.toString());
-            UploadTask uploadTask = riversRef.putFile(selectedImageUri);
+        if(requestCode==12 && resultCode==RESULT_OK && data!=null) {
+            imageuri = data.getData();
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageuri);
+                imageview.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+    }
 
 
+    private TensorImage loadImage(final Bitmap bitmap) {
+        // Loads bitmap into a TensorImage.
+        inputImageBuffer.load(bitmap);
+
+        // Creates processor for the TensorImage.
+        int cropSize = Math.min(bitmap.getWidth(), bitmap.getHeight());
+        // TODO(b/143564309): Fuse ops inside ImageProcessor.
+        ImageProcessor imageProcessor =
+                new ImageProcessor.Builder()
+                        .add(new ResizeWithCropOrPadOp(cropSize, cropSize))
+                        .add(new ResizeOp(imageSizeX, imageSizeY, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
+                        .add(getPreprocessNormalizeOp())
+                        .build();
+        return imageProcessor.process(inputImageBuffer);
+    }
+
+    private MappedByteBuffer loadmodelfile(Activity activity) throws IOException {
+        AssetFileDescriptor fileDescriptor=activity.getAssets().openFd("model.tflite");
+        FileInputStream inputStream=new FileInputStream(fileDescriptor.getFileDescriptor());
+        FileChannel fileChannel=inputStream.getChannel();
+        long startoffset = fileDescriptor.getStartOffset();
+        long declaredLength=fileDescriptor.getDeclaredLength();
+        return fileChannel.map(FileChannel.MapMode.READ_ONLY,startoffset,declaredLength);
+    }
+
+    private TensorOperator getPreprocessNormalizeOp() {
+        return new NormalizeOp(IMAGE_MEAN, IMAGE_STD);
+    }
+    private TensorOperator getPostprocessNormalizeOp(){
+        return new NormalizeOp(PROBABILITY_MEAN, PROBABILITY_STD);
     }
 
 
 
-    private Interpreter getTfliteInterpreter(String modelPath) {
-        try {
-            return new Interpreter(loadModelFile(infertestactivity.this, modelPath));
-        } catch (Exception e) {
+    private void showresult(){
+
+        try{
+            labels = FileUtil.loadLabels(infertestactivity.this,"labels.txt");
+        }catch (Exception e){
             e.printStackTrace();
         }
-        return null;
+        Map<String, Float> labeledProbability =
+                new TensorLabel(labels, probabilityProcessor.process(outputProbabilityBuffer))
+                        .getMapWithFloatValue();
+        float maxValueInMap =(Collections.max(labeledProbability.values()));
+
+        for (Map.Entry<String, Float> entry : labeledProbability.entrySet()) {
+            //if (entry.getValue()==maxValueInMap) {
+            String[] label = labeledProbability.keySet().toArray(new String[0]);
+            Float[] label_probability = labeledProbability.values().toArray(new Float[0]);
+
+            float max=0;
+            max=label_probability[0];
+            int maxposition=0;
+            for(int i=1; i<label_probability.length; i++)
+            {
+               if( max < label_probability[i]){
+                   max=label_probability[i];
+                   maxposition=i;
+               }
+            }
+
+            infer_Result.setText(labels.get(maxposition));
+
+
+            //           }
+        }
     }
 
-    // 모델을 읽어오는 함수로, 텐서플로 라이트 홈페이지에 있다.
-    // MappedByteBuffer 바이트 버퍼를 Interpreter 객체에 전달하면 모델 해석을 할 수 있다.
-    private MappedByteBuffer loadModelFile(Activity activity, String modelPath) throws IOException {
-        AssetFileDescriptor fileDescriptor = activity.getAssets().openFd(modelPath);
-        FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
-        FileChannel fileChannel = inputStream.getChannel();
-        long startOffset = fileDescriptor.getStartOffset();
-        long declaredLength = fileDescriptor.getDeclaredLength();
-        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
-    }
 
 }

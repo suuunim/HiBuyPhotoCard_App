@@ -36,12 +36,12 @@
 
         <EditText
             android:id="@+id/infer_result"
-            android:layout_width="250dp"
+            android:layout_width="400dp"
             android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_marginTop="30dp"
             android:background="@drawable/setting_edittext"
-            android:maxLength="10"
+            android:maxLength="20"
 
 
 

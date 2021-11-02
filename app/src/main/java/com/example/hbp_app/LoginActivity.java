@@ -22,7 +22,6 @@ import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
 public class LoginActivity extends AppCompatActivity {
     private TextView textView_signIn;
     private TextView textView_find;
@@ -45,7 +44,6 @@ public class LoginActivity extends AppCompatActivity {
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
-
 
 
         login_btn = findViewById(R.id.login_btn);
