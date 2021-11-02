@@ -1,5 +1,6 @@
 package com.example.hbp_app;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -14,6 +15,9 @@ public class PushSettingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pushsetting);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
 
         Switch_키워드알림  = findViewById(R.id.Switch_키워드알림);
         Switch_채팅알림    = findViewById(R.id.Switch_채팅알림);

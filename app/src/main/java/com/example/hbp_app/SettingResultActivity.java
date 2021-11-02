@@ -1,5 +1,6 @@
 package com.example.hbp_app;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,6 +18,9 @@ public class SettingResultActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.setting);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
 
 
         ImageButton_푸시알림 = findViewById(R.id.ImageButton_푸시알림);

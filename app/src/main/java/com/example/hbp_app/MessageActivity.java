@@ -17,6 +17,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.provider.MediaStore;
@@ -27,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -84,10 +86,14 @@ public class MessageActivity extends AppCompatActivity {
     private ValueEventListener valueEventListener;
     int peoplecount = 0;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
+
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();  //채팅을 요구 하는 아아디 즉 단말기에 로그인된 UID
         Intent intent2 = getIntent();
         Bundle bundle = intent2.getExtras();
@@ -95,6 +101,10 @@ public class MessageActivity extends AppCompatActivity {
         button = findViewById(R.id.messageActivity_button);
         editText = findViewById(R.id.messageActivity_editText);
         TextView_Bigtitle = findViewById(R.id.TextView_Bigtitle);
+//        EditText edit = new EditText(this);
+//        edit.setWidth(200);
+//        edit.setText("Katou", BufferType.NORMAL);
+        editText.setPadding(40, 0, 48, 0);
 
 
         recyclerView = findViewById(R.id.messageActivity_reclclerview);
@@ -356,10 +366,27 @@ public class MessageActivity extends AppCompatActivity {
 
                 //상대방이 보낸 메세지
             } else {
-                Glide.with(holder.itemView.getContext())
-                        .load(userModel.profileImageUrl)
-                        .apply(new RequestOptions().circleCrop())
-                        .into(messageViewHolder.imageView_profile);
+//                Glide.with(holder.itemView.getContext())
+//                        .load(userModel.profileImageUrl)
+//                        .apply(new RequestOptions().circleCrop())
+//                        .into(messageViewHolder.imageView_profile);
+
+
+                storage = FirebaseStorage.getInstance();
+                StorageReference storageReference = storage.getReference();
+                StorageReference riversRef = storageReference.child(userModel.profileImageUrl);
+
+                riversRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Glide.with(holder.itemView.getContext())
+                                .load(uri)
+                                .apply(new RequestOptions().circleCrop())
+                                .into(messageViewHolder.imageView_profile);
+                    }
+                });
+
+
                 messageViewHolder.textview_name.setText(userModel.userName);
                 messageViewHolder.linearLayout_destination.setVisibility(View.VISIBLE);
                 messageViewHolder.textView_message.setText(comments.get(position).message);

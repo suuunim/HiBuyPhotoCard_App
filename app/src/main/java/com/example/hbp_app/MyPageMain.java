@@ -44,14 +44,14 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class MyPageMain<CircularImageView> extends AppCompatActivity {
-    private String imageUrl;
+
     private TextView TextView_설정;
     private TextView TextView_개발자문의;
     private TextView TextView_선호아이돌;
     private TextView textview_점수1;
     private TextView textview_점수2;
     private TextView textview_점수3;
-    private Uri imgUri;
+
     private ImageView ImageView_photo;
     private TextView userName;
     private String email;
@@ -60,7 +60,6 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
 
     private TextView wishBtn;
     private TextView purchaseBtn;
-    private TextView ChangemypageBtn;
 
     private FirebaseAuth mAuth;
     private final FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -70,6 +69,7 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
     private DatabaseReference mypageDB;
     private DatabaseReference imageDB;
     private DatabaseReference memberDB;
+    private DatabaseReference fandomDB;
     private FirebaseStorage storage;
     private FirebaseUser user;
 
@@ -85,6 +85,7 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
     private LinearLayout homeBtn;
     private LinearLayout chatBtn;
     private LinearLayout mypageBtn;
+    private TextView ChangemypageBtn;
 
 
 
@@ -93,19 +94,23 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mypage);
 
-        ChangemypageBtn=findViewById(R.id.changemypageBtn);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
 
-        ChangemypageBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent=new Intent(MyPageMain.this,ChangeSettingActivity.class);
-                intent.putExtra("user_nickName",nickName);
-                intent.putExtra("user_email",email);
-                intent.putExtra("user_image",imageUrl);
-                startActivity(intent);
+//        ChangemypageBtn=findViewById(R.id.changemypageBtn);
+//
+//        ChangemypageBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent=new Intent(MyPageMain.this,ChangeSettingActivity.class);
+//                intent.putExtra("user_nickName",nickName);
+//                intent.putExtra("user_email",email);
+//                intent.putExtra("user_image",imageUrl);
+//                startActivity(intent);
+//
+//            }
+//        });
 
-            }
-        });
 
         purchaseBtn = findViewById(R.id.purchaseBtn);
         purchaseBtn.setOnClickListener(new View.OnClickListener() {
@@ -178,9 +183,7 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
                         Log.d("확인", "같은 이메일은 " + email);
                         nickName = datas.getKey();
                         userName = findViewById(R.id.userName);
-                        userName.setText(nickName);
-
-                        DatabaseReference fandomDB = mDatabase.child("id_list").child(nickName).child("mypage");
+                        fandomDB = mDatabase.child("id_list").child(nickName).child("mypage");
                         fandomDB.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -192,6 +195,8 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
 
                             }
                         });
+
+
 
 
                         memberDB = mDatabase.child("id_list").child(nickName).child("member");
@@ -210,39 +215,37 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
 
 
 
+
                         imageDB = mDatabase.child("id_list").child(nickName).child("image");
                         imageDB.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                imageUrl = snapshot.getValue(String.class);
-                                storage=FirebaseStorage.getInstance();
-                                StorageReference storageReference=storage.getReference();
-                                StorageReference riverRef=storageReference.child(imageUrl);
-
+                                String imageUrl = snapshot.getValue(String.class);
                                 ImageView_photo = findViewById(R.id.ImageView_photo);
+//                                ImageView_photo.setImageURI(Uri.parse(imageUrl));
 
 
-
-                                riverRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                storage = FirebaseStorage.getInstance();
+                                StorageReference storageReference = storage.getReference();
+                                StorageReference riversRef = storageReference.child(imageUrl);
+                                riversRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
                                     public void onSuccess(Uri uri) {
-                                        Glide.with(getApplicationContext()).load(uri).into(ImageView_photo);
-                                        imgUri=uri;
+                                        Glide.with(ImageView_photo).load(uri).into(ImageView_photo);
                                     }
                                 });
 
 
-                            }
+
+
+
+                        }
 
                             @Override
                             public void onCancelled(@NonNull DatabaseError error) {
 
                             }
                         });
-
-
-
-
 
 
 
@@ -346,7 +349,7 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
         contractBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), WritingActivity.class);
+                Intent intent = new Intent(getApplicationContext(), TaggingActivity.class);
                 startActivity(intent);
                 finish();
             }

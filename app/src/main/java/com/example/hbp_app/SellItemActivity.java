@@ -65,14 +65,20 @@ public class SellItemActivity extends AppCompatActivity {
    private Button editButton;
    private ToggleButton sellYesButton;
    private ToggleButton sellNoButton;
+   private Button taggingButton;
 
    protected void onCreate(Bundle savedInstanceState) {
 
        super.onCreate(savedInstanceState);
        setContentView(R.layout.activity_sell_mypage);
 
-       ActionBar actionBar = getSupportActionBar();  //action bar 없기
-       actionBar.hide();
+       ActionBar actionBar = getSupportActionBar();
+       actionBar.hide(); // actionBar 숨기기
+
+
+       Intent intent = new Intent(SellItemActivity.this,TaggingActivity.class);
+       startActivity(intent);
+
 
        intent = getIntent();
        //number = intent.getIntExtra("number",-1);
@@ -362,6 +368,7 @@ public class SellItemActivity extends AppCompatActivity {
             StorageReference storageRef = storage.getReference();
             StorageReference riversRef=storageRef.child(selectedImageUri.toString());
             UploadTask uploadTask = riversRef.putFile(selectedImageUri);
+
 
 
         }

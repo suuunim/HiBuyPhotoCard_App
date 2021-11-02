@@ -70,6 +70,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
+
         SearchDialogActivity dialog = new SearchDialogActivity(MainActivity.this);
 
         search_button = findViewById(R.id.search_button);
@@ -110,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         contractBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), WritingActivity.class);
+                Intent intent = new Intent(getApplicationContext(), TaggingActivity.class);
                 startActivity(intent);
                 finish();
             }

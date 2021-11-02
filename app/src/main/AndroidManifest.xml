@@ -63,6 +63,7 @@
 
         <activity android:name=".SellPageActivity"/>
 
+        <activity android:name=".TaggingActivity"/>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.hibuyphotocard.fileprovider"

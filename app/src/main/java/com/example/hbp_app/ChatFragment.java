@@ -2,7 +2,9 @@ package com.example.hbp_app;
 
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.collection.ArraySet;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -12,6 +14,7 @@ import android.app.ActivityOptions;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
@@ -24,6 +27,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -32,6 +36,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.annotations.Nullable;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -51,7 +57,7 @@ public class ChatFragment extends Fragment {
     private LinearLayout homeBtn;
     private LinearLayout chatBtn;
     private LinearLayout mypageBtn;
-
+    private FirebaseStorage storage;
 
     private DatabaseReference allchatrooms;
     private FirebaseAuth mAuth;
@@ -62,6 +68,10 @@ public class ChatFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat,container,false);
+
+
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        actionBar.hide();
 
         RecyclerView recyclerView  = view.findViewById(R.id.chatfragment_recyclerview);
         recyclerView.setAdapter(new ChatRecyclerViewAdapter());
@@ -98,7 +108,7 @@ public class ChatFragment extends Fragment {
         contractBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(view.getContext(), WritingActivity.class);
+                Intent intent = new Intent(view.getContext(), TaggingActivity.class);
                 startActivity(intent);
 
             }
@@ -109,9 +119,6 @@ public class ChatFragment extends Fragment {
 
         return view;
     }
-
-
-
 
 
 
@@ -168,14 +175,35 @@ public class ChatFragment extends Fragment {
                     destinationUsers.add(destinationUid);
                 }
             }
+
+
+
             FirebaseDatabase.getInstance().getReference().child("users").child(destinationUid).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
+
                     UserModel userModel =  dataSnapshot.getValue(UserModel.class);
-                    Glide.with(customViewHolder.itemView.getContext())
-                            .load(userModel.profileImageUrl)
-                            .apply(new RequestOptions().circleCrop())
-                            .into(customViewHolder.imageView);
+
+                    storage = FirebaseStorage.getInstance();
+                    StorageReference storageReference = storage.getReference();
+                    StorageReference riversRef = storageReference.child(userModel.profileImageUrl);
+
+
+                    riversRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            Glide.with(customViewHolder.itemView.getContext())
+                                    .load(uri)
+                                    .apply(new RequestOptions().circleCrop())
+                                    .into(customViewHolder.imageView);
+                        }
+                    });
+
+
+//                    Glide.with(customViewHolder.itemView.getContext())
+//                            .load(userModel.profileImageUrl)
+//                            .apply(new RequestOptions().circleCrop())
+//                            .into(customViewHolder.imageView);
 
                     customViewHolder.textView_title.setText(userModel.userName);
 

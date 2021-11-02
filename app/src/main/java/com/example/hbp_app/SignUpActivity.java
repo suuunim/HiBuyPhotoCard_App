@@ -28,6 +28,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import java.util.regex.Pattern;
+
 import javax.mail.MessagingException;
 import javax.mail.SendFailedException;
 
@@ -290,32 +292,42 @@ public class SignUpActivity extends AppCompatActivity {
         String email = emailEditText.getText().toString();
         // 비밀번호
         EditText passwordEditText = findViewById(R.id.signup_password);
+        //숫자, 문자, 특수문자 중 2가지 포함(8~15자)
+        String pwPattern = "^(?=.*[a-zA-Z0-9])(?=.*[a-zA-Z!@#$%^&*])(?=.*[0-9!@#$%^&*]).{8,15}$";
         String password = passwordEditText.getText().toString();
+        Boolean check = Pattern.matches(pwPattern,password);
 
         EditText passwordEditText2 = findViewById(R.id.signup_password_c);
         String password2=passwordEditText2.getText().toString();
 
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful() && password.equals(password2)) {
-                            // Sign in success, update UI with the signed-in user's information
+        if(check == true){
+            mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful() && password.equals(password2)) {
+                                // Sign in success, update UI with the signed-in user's information
 
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            Intent intent = new Intent(SignUpActivity.this, SettingActivity.class);
-                            intent.putExtra("emailtext",email);
-                            startActivity(intent);
-                            Toast.makeText(SignUpActivity.this, "등록 완료", Toast.LENGTH_SHORT).show();
+                                FirebaseUser user = mAuth.getCurrentUser();
+                                Intent intent = new Intent(SignUpActivity.this, SettingActivity.class);
+                                intent.putExtra("emailtext",email);
+                                startActivity(intent);
+                                Toast.makeText(SignUpActivity.this, "등록 완료", Toast.LENGTH_SHORT).show();
 
-                        } else {
-                            // If sign in fails, display a message to the user.
+                            } else {
+                                // If sign in fails, display a message to the user.
 
-                            Toast.makeText(SignUpActivity.this, "등록 에러", Toast.LENGTH_SHORT).show();
-                            return;
+                                Toast.makeText(SignUpActivity.this, "등록 에러", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
                         }
-                    }
-                });
+                    });
+        }
+        else{
+            Toast.makeText(this, "숫자, 문자, 특수문자 중 2가지 포함해서 8~15자로 입력해주세요",Toast.LENGTH_SHORT).show();
+        }
+
+
     }
 
 
