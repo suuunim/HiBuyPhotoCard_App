@@ -31,9 +31,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText textView_passwd;
     private EditText textView_id;
     private ArrayList<SearchItemList> item;
-
     SearchItemList sellItemList;
-
     private HashMap sell1 = new HashMap();
     private DatabaseReference SellItemList;
 
@@ -94,7 +92,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                            Intent intent = new Intent(getApplicationContext(), infertestactivity.class);
 //                            intent.putExtra("itemList",item);
                             startActivity(intent);
                             finish();
