@@ -1,17 +1,23 @@
 package com.example.hbp_app;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -27,7 +33,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -44,8 +52,12 @@ import com.google.firebase.storage.UploadTask;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Text;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -73,6 +85,7 @@ public class ChangeSettingActivity extends AppCompatActivity {
     private FirebaseDatabase mData;
     private DatabaseReference mypageDB;
     private DatabaseReference memberDB;
+    private DatabaseReference idolDB;
     private DatabaseReference UIDDB;
     private DatabaseReference SellDB;
     private DatabaseReference selectGroupDB;
@@ -105,8 +118,19 @@ public class ChangeSettingActivity extends AppCompatActivity {
     private DatabaseReference photocardDB;
     private String dataGroup;
     private TextView viewnickname;
+
     private final int GET_GALLERY_IMAGE = 200;
     private ImageView imageview;
+    Uri photoUri;
+    String mCurrentPhotoPath;
+    final static int TAKE_PICTURE = 1;
+    final static int REQUEST_TAKE_PHOTO = 1;
+    Uri selectedImageUri;
+
+    private Dialog dialog;
+    private Button cameraBtn;
+    private Button albumBtn;
+
     Integer deliveryscore;
     Integer itemScore;
     Integer mannerScore;
@@ -114,16 +138,16 @@ public class ChangeSettingActivity extends AppCompatActivity {
     DatabaseReference dataRef;
     DatabaseReference nameRef;
     DatabaseReference sellRef;
-    Uri selectedImageUri;
     EditText nicknameText;
     String usernickname;
     String useremail;
     String userimage;
     String changenickname;
-    Map<String,String> sell_hashMap;
+    ArrayList sell_hashMap;
     Map<Integer,String> group_hashMap;
     Map<Integer,String> member_hashMap;
 
+    int check=0;
     private DatabaseReference checkIdol;
 
     @Override
@@ -141,14 +165,44 @@ public class ChangeSettingActivity extends AppCompatActivity {
         imageview = (ImageView) findViewById(R.id.profile_ficture_Change);
         imageview.setBackground(new ShapeDrawable(new OvalShape()));
 
+        //다이얼로그
+        dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.activity_camera_dialog);
 
-        storage = FirebaseStorage.getInstance();
-        imageview.setOnClickListener(new View.OnClickListener() {
+        cameraBtn = dialog.findViewById(R.id.cameraBtn);
+        cameraBtn.setOnClickListener(this::onClick);
+        albumBtn = dialog.findViewById(R.id.albumBtn);
+        albumBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
-
                 Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
                 startActivityForResult(intent, GET_GALLERY_IMAGE);
+                dialog.hide();
+            }
+        });
+        // 권한 확인 및 요청
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+                    && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                Log.d("check", "권한 설정 완료");
+            }
+            else {
+                Log.d("check", "권한 설정 요청");
+                ActivityCompat.requestPermissions(ChangeSettingActivity.this,
+                        new String[]{Manifest.permission.CAMERA,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            }
+        }
+
+
+        storage = FirebaseStorage.getInstance();
+
+        imageview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.show();
             }
         });
 
@@ -177,19 +231,18 @@ public class ChangeSettingActivity extends AppCompatActivity {
             }
         });
 
-
-
         SellDB = mDatabase.child("id_list").child(usernickname).child("sell"); //유저의 판매목록 가져오기
         SellDB.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                sell_hashMap = (HashMap<String, String>) dataSnapshot.getValue();
+                sell_hashMap = (ArrayList) dataSnapshot.getValue();
 
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
             }
         });
+
 
 
         selectGroupDB = mDatabase.child("id_list").child(usernickname).child("group"); // 유저가 선택한 그룹 가져오기
@@ -371,16 +424,17 @@ public class ChangeSettingActivity extends AppCompatActivity {
                                         databaseReference.child("id_list").child(nicknameText.getText().toString()).child("UID").setValue(UID);
 
 
-                                        for(String key : sell_hashMap.keySet()){
-                                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("sell").child(key).setValue(key);
-                                            databaseReference.child("Sell").child(key).child("userName").setValue(nicknameText.getText().toString());
+                                        for(int i=0;i<sell_hashMap.size();i++){
+                                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("sell").child(String.valueOf(i)).setValue(sell_hashMap.get(i).toString());
+                                            databaseReference.child("Sell").child(sell_hashMap.get(i).toString()).child("userName").setValue(nicknameText.getText().toString());
 
                                         }
 
 
 
 
-                                        Intent intent = new Intent(ChangeSettingActivity.this, MyPageMain.class);
+
+                                    Intent intent = new Intent(ChangeSettingActivity.this, MyPageMain.class);
                                         intent.putExtra("itemList", item);
                                         startActivity(intent);
 
@@ -450,25 +504,6 @@ public class ChangeSettingActivity extends AppCompatActivity {
             }
         });
 
-
-    }
-
-
-    @Override
-    protected void onActivityResult ( int requestCode, int resultCode, Intent data){
-
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK && data != null && data.getData() != null) {
-
-            selectedImageUri = data.getData();
-            imageview.setImageURI(selectedImageUri);
-            StorageReference storageRef = storage.getReference();
-            StorageReference riversRef = storageRef.child(selectedImageUri.toString());
-            UploadTask uploadTask = riversRef.putFile(selectedImageUri);
-
-
-        }
-
     }
 
     public void selectOther(List group) {
@@ -511,6 +546,104 @@ public class ChangeSettingActivity extends AppCompatActivity {
         }
 
     }
+
+    // 권한 요청하기
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Log.d("check", "onRequestPermissionsResult");
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED )
+        {
+            Log.d("check", "Permission: " + permissions[0] + "was " + grantResults[0]);
+        }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case REQUEST_TAKE_PHOTO: {
+                if(resultCode == RESULT_OK){
+                    imageview.setImageURI(selectedImageUri);
+                    StorageReference storageRef = storage.getReference();
+                    StorageReference riversRef=storageRef.child(selectedImageUri.toString());
+                    UploadTask uploadTask = riversRef.putFile(selectedImageUri);
+                    dialog.hide();
+                }
+            }
+        }
+
+        if(requestCode == 0 &&resultCode == RESULT_OK){
+            imageview.setImageURI(photoUri);
+            dialog.hide();
+
+        }
+
+        if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK && data != null && data.getData() != null) {
+
+            selectedImageUri = data.getData();
+            imageview.setImageURI(selectedImageUri);
+            StorageReference storageRef = storage.getReference();
+            StorageReference riversRef=storageRef.child(selectedImageUri.toString());
+            UploadTask uploadTask = riversRef.putFile(selectedImageUri);
+            dialog.hide();
+        }
+    }
+
+    // 촬영한 사진을 이미지 파일로 저장
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,".jpg",storageDir
+        );
+        return image;
+    }
+
+    //카메라 버튼 클릭 시 실행할 메서드
+    public void onClick(View view){
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        //인텐트를 처리할 카메라 액티비티가 있는지 확인
+        if(takePictureIntent.resolveActivity(getPackageManager())!=null) {
+            //촬영한 사진을 저장할 파일 생성
+            File photoFile = null;
+
+            try {
+                //임시로 사용할 파일 -> 캐시 폴더로 경로 설정
+                File tempDir = getCacheDir();
+
+                //임시 촬영 파일 세팅
+                String timeStamp = new SimpleDateFormat("yyyyMMdd").format(new Date());
+                String imageFileName = "Capture_"+timeStamp+"_";
+
+                File tempImage = File.createTempFile(
+                        imageFileName,
+                        ".jpg",
+                        tempDir
+                );
+
+                //ACTION_VIEW 인텐르를 사용할 경로 (임시파일의 경로)
+                mCurrentPhotoPath = tempImage.getAbsolutePath();
+                photoFile = tempImage;
+            } catch (IOException e){
+                Log.d("확인","파일 생성 에러 ",e);
+            }
+
+            //파일이 정상적으로 생성되었을 때 계속 실행
+            if(photoFile !=null){
+                Uri photoURI = FileProvider.getUriForFile(this, getPackageName()+".fileprovider",
+                        photoFile);
+
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,photoURI);
+                selectedImageUri = photoURI;
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                dialog.hide();
+
+            }
+        }
+    }
+
 
     public void initSelectText(String type){ //더블클릭 시 select String 배열 초기화
         if(type.equals("group")){

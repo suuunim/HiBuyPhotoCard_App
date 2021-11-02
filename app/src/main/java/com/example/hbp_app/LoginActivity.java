@@ -3,7 +3,6 @@ package com.example.hbp_app;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,15 +18,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
 public class LoginActivity extends AppCompatActivity {
     private TextView textView_signIn;
     private TextView textView_find;
@@ -36,9 +30,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText textView_passwd;
     private EditText textView_id;
     private ArrayList<SearchItemList> item;
-
     SearchItemList sellItemList;
-
     private HashMap sell1 = new HashMap();
     private DatabaseReference SellItemList;
 
@@ -52,8 +44,6 @@ public class LoginActivity extends AppCompatActivity {
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
-
-
 
         login_btn = findViewById(R.id.login_btn);
         login_btn.setOnClickListener(new View.OnClickListener() {

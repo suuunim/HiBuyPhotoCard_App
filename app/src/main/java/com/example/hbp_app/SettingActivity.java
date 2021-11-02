@@ -1,17 +1,23 @@
 package com.example.hbp_app;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -27,9 +33,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,7 +49,11 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,11 +106,30 @@ public class SettingActivity extends AppCompatActivity {
     private List<String> searchKeywordMember = new ArrayList<String>();
     private DatabaseReference photocardDB;
     private String dataGroup;
+
+
     private final int GET_GALLERY_IMAGE = 200;
     private ImageView imageview;
+
+    private ImageView explain_button;
+    TextView txtResult;
+
     private FirebaseStorage storage;
+    Uri photoUri;
+    String mCurrentPhotoPath;
+    final static int TAKE_PICTURE = 1;
+    final static int REQUEST_TAKE_PHOTO = 1;
+    private Dialog dialog;
+    private Button cameraBtn;
+    private Button albumBtn;
+
+
+    private DatabaseReference usersDB = database.getReference();;
+
+    private String uid;
     Uri selectedImageUri;
     EditText nicknameText;
+    FirebaseUser user;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,15 +145,57 @@ public class SettingActivity extends AppCompatActivity {
         imageview = (ImageView) findViewById(R.id.profile_ficture);
         imageview.setBackground(new ShapeDrawable(new OvalShape()));
 
+        explain_button = (ImageView) findViewById(R.id.explanation_button);
+        explain_button.setBackground(new ShapeDrawable(new OvalShape()));
+
+        PopupDialogActivity explain_dialog = new PopupDialogActivity(SettingActivity.this);
+
+
+        explain_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                explain_dialog.showDialog();
+            }
+        });
+
+
+        //다이얼로그
+        dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.activity_camera_dialog);
+
+        cameraBtn = dialog.findViewById(R.id.cameraBtn);
+        cameraBtn.setOnClickListener(this::onClick);
+        albumBtn = dialog.findViewById(R.id.albumBtn);
+        albumBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+                startActivityForResult(intent, GET_GALLERY_IMAGE);
+                dialog.hide();
+            }
+        });
+
+        // 권한 확인 및 요청
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+                    && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                Log.d("check", "권한 설정 완료");
+            }
+            else {
+                Log.d("check", "권한 설정 요청");
+                ActivityCompat.requestPermissions(SettingActivity.this,
+                        new String[]{Manifest.permission.CAMERA,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            }
+        }
+
 
         storage = FirebaseStorage.getInstance();
         imageview.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
-                startActivityForResult(intent, GET_GALLERY_IMAGE);
-
+                dialog.show();
             }
         });
 
@@ -142,6 +217,10 @@ public class SettingActivity extends AppCompatActivity {
         groupDB = mDatabase.child("idol");
         fandomDB=mDatabase.child("fandom");
 
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        uid = user.getUid();
+
+
         Button Finish_button = findViewById(R.id.button_profile_finish);
 
         Finish_button.setOnClickListener(new View.OnClickListener() {
@@ -156,15 +235,20 @@ public class SettingActivity extends AppCompatActivity {
                         if(value!=null){
                             Toast.makeText(getApplicationContext(),"중복되는 닉네임 입니다",Toast.LENGTH_SHORT).show();//토스메세지 출력
                         }
+                        else if(searchKeywordGroup.size()==0|| searchKeywordMember.size()==0){
+                            Toast.makeText(getApplicationContext(),"그룹 또는 멤버를 선택해주세요",Toast.LENGTH_SHORT).show();//토스메세지 출력
+                        }
+                        else if(nicknameText.getText().toString().equals("")||nicknameText.getText().toString()==null){
+                            Toast.makeText(getApplicationContext(),"닉네임을 입력해주세요",Toast.LENGTH_SHORT).show();//토스메세지 출력
+                        }
                         else{
-
-                            FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getUid()).child("profileImageUrl").setValue(selectedImageUri.toString());
-                            FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getUid()).child("uid").setValue(mAuth.getUid());
-                            FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getUid()).child("userName").setValue(nicknameText.getText().toString());
+                            Log.d("확인",selectedImageUri.toString());
+                            FirebaseDatabase.getInstance().getReference().child("users").child(uid).child("profileImageUrl").setValue(selectedImageUri.toString());
+                            FirebaseDatabase.getInstance().getReference().child("users").child(uid).child("uid").setValue(uid);
+                            FirebaseDatabase.getInstance().getReference().child("users").child(uid).child("userName").setValue(nicknameText.getText().toString());
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("email").setValue(email);
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("name").setValue(nicknameText.getText().toString());
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("group").setValue(searchKeywordGroup);
-
 
                             String fandomname;
                             fandomDB.addValueEventListener(new ValueEventListener() {
@@ -174,8 +258,6 @@ public class SettingActivity extends AppCompatActivity {
                                     String groupname=searchKeywordGroup.get(0);
 
                                     databaseReference.child("id_list").child(nicknameText.getText().toString()).child("mypage").child("fandom").setValue(fandom.get(groupname));
-
-
                                 }
 
                                 @Override
@@ -184,11 +266,7 @@ public class SettingActivity extends AppCompatActivity {
                                 }
                             });
 
-
-
-
-
-
+                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("UID").setValue(uid);
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("member").setValue(searchKeywordMember);
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("image").setValue(selectedImageUri.toString());
                             databaseReference.child("id_list").child(nicknameText.getText().toString()).child("mypage").child("deliveryScore").setValue(30);
@@ -264,22 +342,7 @@ public class SettingActivity extends AppCompatActivity {
 
 
     }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK && data != null && data.getData() != null) {
-
-            selectedImageUri = data.getData();
-            imageview.setImageURI(selectedImageUri);
-            StorageReference storageRef = storage.getReference();
-            StorageReference riversRef=storageRef.child(selectedImageUri.toString());
-            UploadTask uploadTask = riversRef.putFile(selectedImageUri);
-
-
-        }
-
-    }
 
     public void selectOther(List group) {
 
@@ -321,6 +384,105 @@ public class SettingActivity extends AppCompatActivity {
         }
 
     }
+
+    // 권한 요청하기
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Log.d("check", "onRequestPermissionsResult");
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED )
+        {
+            Log.d("check", "Permission: " + permissions[0] + "was " + grantResults[0]);
+        }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case REQUEST_TAKE_PHOTO: {
+                if(resultCode == RESULT_OK){
+                    imageview.setImageURI(selectedImageUri);
+                    StorageReference storageRef = storage.getReference();
+                    StorageReference riversRef=storageRef.child(selectedImageUri.toString());
+                    UploadTask uploadTask = riversRef.putFile(selectedImageUri);
+                    dialog.hide();
+                }
+            }
+        }
+
+        if(requestCode == 0 &&resultCode == RESULT_OK){
+            imageview.setImageURI(photoUri);
+            dialog.hide();
+
+        }
+
+        if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK && data != null && data.getData() != null) {
+
+            selectedImageUri = data.getData();
+            imageview.setImageURI(selectedImageUri);
+            StorageReference storageRef = storage.getReference();
+            StorageReference riversRef=storageRef.child(selectedImageUri.toString());
+            UploadTask uploadTask = riversRef.putFile(selectedImageUri);
+            dialog.hide();
+        }
+    }
+
+    // 촬영한 사진을 이미지 파일로 저장
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,".jpg",storageDir
+        );
+        return image;
+    }
+
+    //카메라 버튼 클릭 시 실행할 메서드
+    public void onClick(View view){
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        //인텐트를 처리할 카메라 액티비티가 있는지 확인
+        if(takePictureIntent.resolveActivity(getPackageManager())!=null) {
+            //촬영한 사진을 저장할 파일 생성
+            File photoFile = null;
+
+            try {
+                //임시로 사용할 파일 -> 캐시 폴더로 경로 설정
+                File tempDir = getCacheDir();
+
+                //임시 촬영 파일 세팅
+                String timeStamp = new SimpleDateFormat("yyyyMMdd").format(new Date());
+                String imageFileName = "Capture_"+timeStamp+"_";
+
+                File tempImage = File.createTempFile(
+                        imageFileName,
+                        ".jpg",
+                        tempDir
+                );
+
+                //ACTION_VIEW 인텐르를 사용할 경로 (임시파일의 경로)
+                mCurrentPhotoPath = tempImage.getAbsolutePath();
+                photoFile = tempImage;
+            } catch (IOException e){
+                Log.d("확인","파일 생성 에러 ",e);
+            }
+
+            //파일이 정상적으로 생성되었을 때 계속 실행
+            if(photoFile !=null){
+                Uri photoURI = FileProvider.getUriForFile(this, getPackageName()+".fileprovider",
+                        photoFile);
+
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,photoURI);
+                selectedImageUri = photoURI;
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                dialog.hide();
+
+            }
+        }
+    }
+
+
     private void createTextView(String text, LinearLayout layout, String type, List list){
         TextView label = new TextView(getApplicationContext());
         label.setText(text);
