@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
@@ -70,6 +71,8 @@ public class SellItemActivity extends AppCompatActivity {
        super.onCreate(savedInstanceState);
        setContentView(R.layout.activity_sell_mypage);
 
+       ActionBar actionBar = getSupportActionBar();  //action bar 없기
+       actionBar.hide();
 
        intent = getIntent();
        //number = intent.getIntExtra("number",-1);
