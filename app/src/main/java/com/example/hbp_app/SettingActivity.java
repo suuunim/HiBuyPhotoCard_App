@@ -115,7 +115,7 @@ public class SettingActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide(); // actionBar 숨기기
 
-        SearchDialogActivity dialog = new SearchDialogActivity(SettingActivity.this);
+
         imageview = (ImageView) findViewById(R.id.profile_ficture);
         imageview.setBackground(new ShapeDrawable(new OvalShape()));
 
