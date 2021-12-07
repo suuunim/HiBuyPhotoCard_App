@@ -11,7 +11,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@drawable/hbp_img"
+        android:background="@drawable/background_color"
         android:orientation="vertical"
         android:layout_weight="5">
 

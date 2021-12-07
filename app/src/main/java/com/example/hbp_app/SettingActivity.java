@@ -136,11 +136,15 @@ public class SettingActivity extends AppCompatActivity {
         setContentView(R.layout.profilesetting);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-
-
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide(); // actionBar 숨기기
 
+        //statusBbar
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.parseColor("#000000"));
+        }
 
         imageview = (ImageView) findViewById(R.id.profile_ficture);
         imageview.setBackground(new ShapeDrawable(new OvalShape()));

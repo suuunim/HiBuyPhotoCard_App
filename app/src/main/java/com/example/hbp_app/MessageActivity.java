@@ -1,5 +1,6 @@
 package com.example.hbp_app;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -28,6 +29,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -41,6 +43,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -50,6 +54,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -73,11 +79,10 @@ public class MessageActivity extends AppCompatActivity {
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(" M/d HH:mm");
     private ImageButton ImageButton_plus;
 
-    TextView TextView_거래완료등록;
-    ImageView ImageView_background;
     TextView TextView_Bigtitle;
     ImageButton ImageButton_카메라앨범;
     ImageButton ImageButton_사용자신고;
+    ImageButton ImageButton_거래완료;
     private ImageButton ImageButton_chattinglist;
     private final int GET_GALLERY_IMAGE = 200;
     private FirebaseStorage storage;
@@ -87,17 +92,56 @@ public class MessageActivity extends AppCompatActivity {
     int peoplecount = 0;
 
 
+    ArrayList<SellItemList> sellItem;
+    private DatabaseReference mDatabase;
+    private DatabaseReference allUsers;
+    private DatabaseReference sellListDB;
+    private DatabaseReference SellItemList;
+    private String email;
+    private FirebaseUser user;
+    private String nickName;
+    private ArrayList sell; // firebase에서 받아온 목록
+
+    private DatabaseReference userDB;
+
+    String destinationNickName; // 채팅 상대방 닉네임
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
+
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
+
+        //statusBbar
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.parseColor("#C5DCFF"));
+        }
 
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();  //채팅을 요구 하는 아아디 즉 단말기에 로그인된 UID
         Intent intent2 = getIntent();
         Bundle bundle = intent2.getExtras();
+
         destinationUid = bundle.getString("destinationUid"); // 채팅을 당하는 아이디
+        userDB = FirebaseDatabase.getInstance().getReference().child("users").child(destinationUid);
+        userDB.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                HashMap<String,String> hashMap = (HashMap<String, String>) snapshot.getValue();
+                destinationNickName = hashMap.get("userName");
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
+
+
         button = findViewById(R.id.messageActivity_button);
         editText = findViewById(R.id.messageActivity_editText);
         TextView_Bigtitle = findViewById(R.id.TextView_Bigtitle);
@@ -154,6 +198,10 @@ public class MessageActivity extends AppCompatActivity {
         searchDialog.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
         searchDialog.setContentView(R.layout.activity_chat_plusbottonclick); //xml 레이아웃 파일연결
 
+
+        //sellListDialog 코드
+        SellDialogActivity sellDialog = new SellDialogActivity(MessageActivity.this);
+
         ImageButton_plus = findViewById(R.id.ImageButton_plus);
         ImageButton_plus.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -192,6 +240,29 @@ public class MessageActivity extends AppCompatActivity {
                     }
                 });
 
+
+                //***
+                //
+                //
+                // 거래완료 버튼 기능
+                //
+                //
+                // ***
+                ImageButton_거래완료 = searchDialog.findViewById(R.id.ImageButton_거래완료);
+                ImageButton_거래완료.setClickable(true);
+                ImageButton_거래완료.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Activity로 설정하는 방법
+//                        Intent intent = new Intent(MessageActivity.this, SellListMainActivity.class);
+//                        startActivity(intent);
+
+                        //다이얼로그로 설정하는 방법
+                        searchDialog.dismiss();
+                        sellDialog.showDialog(destinationNickName);
+
+                    }
+                });
 
             }
         });

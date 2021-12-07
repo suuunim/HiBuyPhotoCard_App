@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -21,10 +23,12 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
@@ -82,6 +86,11 @@ public class WritingActivity extends AppCompatActivity {
     private Button saveButton;
     private String state;
 
+    private String itemGroupTag;
+    private String itemAlbumTag;
+    private String itemMemberTag;
+    private String itemImage;
+
 
     private HashMap sell1 = new HashMap();
 
@@ -94,6 +103,9 @@ public class WritingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_write);
 
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
+
         //-----------뒤로 가기 이벤트 처리
         Button backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -102,6 +114,20 @@ public class WritingActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        //TaggActivity에서 가져옴
+        Intent intent = getIntent();
+        itemGroupTag = intent.getStringExtra("groupTag");
+        itemAlbumTag = intent.getStringExtra("albumTag");
+        itemMemberTag = intent.getStringExtra("memberTag");
+        itemImage = intent.getStringExtra("image");
+
+        //statusBbar
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.parseColor("#C5DCFF"));
+        }
 
         //다이얼로그
         dialog = new Dialog(this);
@@ -117,6 +143,7 @@ public class WritingActivity extends AppCompatActivity {
                 Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
                 startActivityForResult(intent, GET_GALLERY_IMAGE);
+                dialog.hide();
             }
         });
         // 권한 확인 및 요청
@@ -137,12 +164,15 @@ public class WritingActivity extends AppCompatActivity {
         storage = FirebaseStorage.getInstance();
         //------------이미지 선택
         imageview = findViewById(R.id.writeImage);
-        imageview.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.show();
-            }
-        });
+        Glide.with(getApplicationContext()).load(itemImage).into(imageview);
+
+        //--------------다이얼로그 부분 삭제 필요
+//        imageview.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                dialog.show();
+//            }
+//        });
 
         // 카메라 선택
         //imageview.setOnClickListener(this::onClick);
@@ -258,17 +288,17 @@ public class WritingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if(writeTitle.getText()!=null&writePrice.getText()!=null&writeDetail.getText()!=null&writeDelivery.getText()!=null&selectedImageUri!=null&(yesButton.isChecked()|noButton.isChecked()))
+                if(writeTitle.getText()!=null&writePrice.getText()!=null&writeDetail.getText()!=null&writeDelivery.getText()!=null&(yesButton.isChecked()|noButton.isChecked()))
                 {
                     //SellItemList sellItemList = new SellItemList();
-                    databaseReference.child("Sell").child("sell"+String.valueOf(sellCnt+1)).child("albumTag").setValue("Lived(White ver.)"); //추후 변경
+                    databaseReference.child("Sell").child("sell"+String.valueOf(sellCnt+1)).child("albumTag").setValue(itemAlbumTag);
                     databaseReference.child("Sell").child("sell"+String.valueOf(sellCnt+1)).child("defect").setValue(state);
                     databaseReference.child("Sell").child("sell"+String.valueOf(sellCnt+1)).child("delivery").setValue(writeDelivery.getText().toString());
                     databaseReference.child("Sell").child("sell"+String.valueOf(sellCnt+1)).child("detail").setValue(writeDetail.getText().toString());
                     databaseReference.child("Sell").child("sell"+String.valueOf(sellCnt+1)).child("email").setValue(email);
-                    databaseReference.child("Sell").child("sell"+String.valueOf(sellCnt+1)).child("groupTag").setValue("원어스"); //추후 변경
-                    databaseReference.child("Sell").child("sell"+String.valueOf(sellCnt+1)).child("imageURI").setValue(selectedImageUri.toString());
-                    databaseReference.child("Sell").child("sell"+String.valueOf(sellCnt+1)).child("memberTag").setValue("시온"); //추후 변경
+                    databaseReference.child("Sell").child("sell"+String.valueOf(sellCnt+1)).child("groupTag").setValue(itemGroupTag);
+                    databaseReference.child("Sell").child("sell"+String.valueOf(sellCnt+1)).child("imageURI").setValue(itemImage);
+                    databaseReference.child("Sell").child("sell"+String.valueOf(sellCnt+1)).child("memberTag").setValue(itemMemberTag);
                     databaseReference.child("Sell").child("sell"+String.valueOf(sellCnt+1)).child("price").setValue(writePrice.getText().toString());
                     databaseReference.child("Sell").child("sell"+String.valueOf(sellCnt+1)).child("rateState").setValue(false); //default
                     databaseReference.child("Sell").child("sell"+String.valueOf(sellCnt+1)).child("sellID").setValue("sell"+String.valueOf(sellCnt+1));

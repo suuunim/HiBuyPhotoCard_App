@@ -162,6 +162,14 @@ public class ChangeSettingActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide(); // actionBar 숨기기
 
+        //statusBbar
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.parseColor("#000000"));
+        }
+
+
         imageview = (ImageView) findViewById(R.id.profile_ficture_Change);
         imageview.setBackground(new ShapeDrawable(new OvalShape()));
 
@@ -383,60 +391,60 @@ public class ChangeSettingActivity extends AppCompatActivity {
 
                                     String value = snapshot.getValue(String.class);
 
-                                    
-
-                                        dataRef = mData.getReference();
-                                        nameRef = dataRef.child("id_list").child(usernickname);
-
-                                        nameRef.removeValue();
-                                        databaseReference.child("id_list").child(nicknameText.getText().toString()).child("email").setValue(useremail);
-                                        databaseReference.child("id_list").child(nicknameText.getText().toString()).child("name").setValue(nicknameText.getText().toString());
-                                        databaseReference.child("id_list").child(nicknameText.getText().toString()).child("group").setValue(searchKeywordGroup);
-
-                                        String fandomname;
-                                        fandomDB.addValueEventListener(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                Map<String, String> fandom = (Map<String, String>) snapshot.getValue();
-                                                String groupname = searchKeywordGroup.get(0);
-
-                                                databaseReference.child("id_list").child(nicknameText.getText().toString()).child("mypage").child("fandom").setValue(fandom.get(groupname));
 
 
-                                            }
+                                    dataRef = mData.getReference();
+                                    nameRef = dataRef.child("id_list").child(usernickname);
 
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError error) {
+                                    nameRef.removeValue();
+                                    databaseReference.child("id_list").child(nicknameText.getText().toString()).child("email").setValue(useremail);
+                                    databaseReference.child("id_list").child(nicknameText.getText().toString()).child("name").setValue(nicknameText.getText().toString());
+                                    databaseReference.child("id_list").child(nicknameText.getText().toString()).child("group").setValue(searchKeywordGroup);
 
-                                            }
-                                        });
+                                    String fandomname;
+                                    fandomDB.addValueEventListener(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            Map<String, String> fandom = (Map<String, String>) snapshot.getValue();
+                                            String groupname = searchKeywordGroup.get(0);
 
-                                        databaseReference.child("id_list").child(nicknameText.getText().toString()).child("member").setValue(searchKeywordMember);
-                                        if (selectedImageUri == null){
-                                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("image").setValue(userimage);
-                                        }
-                                        else{
-                                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("image").setValue(selectedImageUri.toString());
-                                        }
-                                        databaseReference.child("id_list").child(nicknameText.getText().toString()).child("mypage").child("deliveryScore").setValue(deliveryscore);
-                                        databaseReference.child("id_list").child(nicknameText.getText().toString()).child("mypage").child("itemScore").setValue(itemScore);
-                                        databaseReference.child("id_list").child(nicknameText.getText().toString()).child("mypage").child("mannerScore").setValue(mannerScore);
-                                        databaseReference.child("id_list").child(nicknameText.getText().toString()).child("UID").setValue(UID);
+                                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("mypage").child("fandom").setValue(fandom.get(groupname));
 
-
-                                        for(int i=0;i<sell_hashMap.size();i++){
-                                            databaseReference.child("id_list").child(nicknameText.getText().toString()).child("sell").child(String.valueOf(i)).setValue(sell_hashMap.get(i).toString());
-                                            databaseReference.child("Sell").child(sell_hashMap.get(i).toString()).child("userName").setValue(nicknameText.getText().toString());
 
                                         }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+
+                                        }
+                                    });
+
+                                    databaseReference.child("id_list").child(nicknameText.getText().toString()).child("member").setValue(searchKeywordMember);
+                                    if (selectedImageUri == null){
+                                        databaseReference.child("id_list").child(nicknameText.getText().toString()).child("image").setValue(userimage);
+                                    }
+                                    else{
+                                        databaseReference.child("id_list").child(nicknameText.getText().toString()).child("image").setValue(selectedImageUri.toString());
+                                    }
+                                    databaseReference.child("id_list").child(nicknameText.getText().toString()).child("mypage").child("deliveryScore").setValue(deliveryscore);
+                                    databaseReference.child("id_list").child(nicknameText.getText().toString()).child("mypage").child("itemScore").setValue(itemScore);
+                                    databaseReference.child("id_list").child(nicknameText.getText().toString()).child("mypage").child("mannerScore").setValue(mannerScore);
+                                    databaseReference.child("id_list").child(nicknameText.getText().toString()).child("UID").setValue(UID);
+
+
+                                    for(int i=0;i<sell_hashMap.size();i++){
+                                        databaseReference.child("id_list").child(nicknameText.getText().toString()).child("sell").child(String.valueOf(i)).setValue(sell_hashMap.get(i).toString());
+                                        databaseReference.child("Sell").child(sell_hashMap.get(i).toString()).child("userName").setValue(nicknameText.getText().toString());
+
+                                    }
 
 
 
 
 
                                     Intent intent = new Intent(ChangeSettingActivity.this, MyPageMain.class);
-                                        intent.putExtra("itemList", item);
-                                        startActivity(intent);
+                                    intent.putExtra("itemList", item);
+                                    startActivity(intent);
 
 
 

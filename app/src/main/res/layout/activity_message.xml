@@ -4,7 +4,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/hbp_img"
+        android:background="@drawable/background_color"
         android:orientation="vertical"
         android:weightSum="1"
         tools:context=".MessageActivity">
@@ -41,20 +41,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:layout_alignParentTop="true"
-                    android:text="푸딩딩"
+                    android:text="user"
                     android:textColor="#646464"
                     android:textSize="20dp"
                     android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/TextView_Bigtitle"
-                    android:layout_centerInParent="true"
-                    android:text="#Seventeen  #헹가래  #HANA"
-                    android:textColor="#646464"
-                    />
 
             </RelativeLayout>
 

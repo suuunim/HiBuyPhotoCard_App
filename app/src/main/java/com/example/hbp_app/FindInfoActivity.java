@@ -1,12 +1,17 @@
 package com.example.hbp_app;
 
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -28,6 +33,16 @@ public class FindInfoActivity extends AppCompatActivity{
         mail=findViewById(R.id.find_PW);
         buttonFind=findViewById(R.id.button_find_PW);
         firebaseAuth = FirebaseAuth.getInstance();
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
+
+        //statusBbar
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.parseColor("#C5DCFF"));
+        }
 
        buttonFind.setOnClickListener(new View.OnClickListener() {
            @Override

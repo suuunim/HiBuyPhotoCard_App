@@ -1,10 +1,14 @@
 package com.example.hbp_app;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -156,18 +160,17 @@ public class SignUpActivity extends AppCompatActivity {
 
         //인증번호 받는 부분은 GONE으로 안보이게 숨긴다
         emailCodeText= findViewById(R.id.email_authentication);
-
-
         emailCodeButton= findViewById(R.id.button_email);
-
-
-
-
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide(); // actionBar 숨기기
 
-
+        //statusBbar
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.parseColor("#C5DCFF"));
+        }
 
         //이메일 인증 하는 부분
         //인증코드 시간초가 흐르는데 이때 인증을 마치지 못하면 인증 코드를 지우게 만든다.
@@ -191,10 +194,7 @@ public class SignUpActivity extends AppCompatActivity {
                     value = 180;
                 }
 
-
                 //이메일이 보내지면 이 부분을 실행시킨다.
-
-
 //핸들러 객체 생성
                 mainHandler=new MainHandler();
 
@@ -238,14 +238,7 @@ public class SignUpActivity extends AppCompatActivity {
 
 
 
-        Google_Login = findViewById(R.id.google_button);
-        Google_Login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-                startActivityForResult(signInIntent,RC_SIGN_IN);
-            }
-        });
+
     }
 
     @Override

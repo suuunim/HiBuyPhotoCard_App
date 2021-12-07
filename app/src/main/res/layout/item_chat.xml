@@ -25,7 +25,7 @@
 
         <TextView
             android:id="@+id/chatitem_textview_title"
-            android:text="푸딩딩          #t소녀시대 #윤아 #앨범명"
+            android:text="푸딩딩"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="8dp"
             android:layout_width="wrap_content"

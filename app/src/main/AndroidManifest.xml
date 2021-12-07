@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.hbp_app">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-feature android:name="android.hardware.camera" android:required="true"/>
-
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:icon="@mipmap/hbp_ic"
+        android:label="하이바이포토카드"
+        android:roundIcon="@mipmap/hbp_ic"
         android:supportsRtl="true"
         android:theme="@style/Theme.HBP_App" >
         <activity android:name=".IntroActivity">
@@ -62,8 +64,16 @@
         <activity android:name=".WishListActivity"/>
 
         <activity android:name=".SellPageActivity"/>
-
+        <activity android:name=".TagDialogActivity"
+            tools:ignore="Instantiatable" />
         <activity android:name=".TaggingActivity"/>
+
+        <activity
+            android:name="com.soundcloud.android.crop.CropImageActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.hibuyphotocard.fileprovider"

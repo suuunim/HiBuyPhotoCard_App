@@ -3,37 +3,29 @@ package com.example.hbp_app;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.security.cert.PolicyNode;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     //    private Button search_button; //메인 내 dialog 창 띄우는 버튼
@@ -52,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean makeLabel = false;
     SearchItemList sellItemList;
     private FloatingActionButton search_button;
+    private LinearLayout search_box;
     private ScrollView scrollView_searchItem;
     private Button button1;
     private Button button2;
@@ -73,8 +66,24 @@ public class MainActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
 
+        //statusBbar
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.parseColor("#C5DCFF"));
+        }
+
         SearchDialogActivity dialog = new SearchDialogActivity(MainActivity.this);
 
+        search_box = findViewById(R.id.search_box);
+        search_box.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.showDialog();
+            }
+        });
+
+        /*
         search_button = findViewById(R.id.search_button);
         search_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
                 dialog.showDialog();
             }
         });
-
+           */
 
         //하단바
         homeBtn = findViewById(R.id.homeBtn);
@@ -144,11 +153,11 @@ public class MainActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         item.clear();
-        getWish();
+        getItem();
         adapter.notifyDataSetChanged();
     }
 
-    public void getWish() {
+    public void getItem() {
         DatabaseReference mData = FirebaseDatabase.getInstance().getReference(); //firebase 연결
         SellItemList = mData.child("Sell");
         SellItemList.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -164,11 +173,12 @@ public class MainActivity extends AppCompatActivity {
                         System.out.println(num);
                         System.out.println(i);
                         System.out.println("----------");
-                        Log.d("ㅇㅇ", "ㄴㅁㅇ");
                         if (num2 == i) {
 
                             sellItemList = snap.getValue(SearchItemList.class);
-                            item.add(sellItemList);
+                            //거래완료 게시물 필터링
+                            if(!sellItemList.getState().equals("거래완료"))
+                                item.add(sellItemList);
                             break;
 
                         }

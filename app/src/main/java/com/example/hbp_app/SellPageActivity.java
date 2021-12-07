@@ -4,13 +4,17 @@ import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
@@ -99,6 +103,13 @@ public class SellPageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sell_page); // xml 연결
+
+        //statusBbar
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.parseColor("#C5DCFF"));
+        }
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
@@ -264,8 +275,6 @@ public class SellPageActivity extends AppCompatActivity {
             });
         }
         else{
-            //수정된 채팅 버튼 들어가면됨 (아마 혜진이 코드 들어갈 부분)
-
             chatButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -279,11 +288,6 @@ public class SellPageActivity extends AppCompatActivity {
 
 
         }
-
-
-
-
-
 
         allUsers.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -306,9 +310,13 @@ public class SellPageActivity extends AppCompatActivity {
                                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                                         if(isChecked){ // 찜 누르면 데이터베이스에 추가
                                             wishListDB.child(String.valueOf(sellID)).setValue(sellID);
+                                            Toast.makeText(SellPageActivity.this, "찜목록에 추가되었습니다.", Toast.LENGTH_SHORT).show();
+
                                         }
                                         else { // 취소하면 데이터베이스에서 삭제
                                             wishListDB.child(sellID).removeValue();
+                                            Toast.makeText(SellPageActivity.this, "찜목록에서 삭제되었습니다.", Toast.LENGTH_SHORT).show();
+
 
                                         }
                                     }

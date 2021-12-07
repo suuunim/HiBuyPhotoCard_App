@@ -4,10 +4,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -88,6 +91,7 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
     private TextView ChangemypageBtn;
 
 
+    private String imageUrl;
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,20 +101,13 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
 
-//        ChangemypageBtn=findViewById(R.id.changemypageBtn);
-//
-//        ChangemypageBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent=new Intent(MyPageMain.this,ChangeSettingActivity.class);
-//                intent.putExtra("user_nickName",nickName);
-//                intent.putExtra("user_email",email);
-//                intent.putExtra("user_image",imageUrl);
-//                startActivity(intent);
-//
-//            }
-//        });
+        //statusBbar
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.parseColor("#000000"));
 
+        }
 
         purchaseBtn = findViewById(R.id.purchaseBtn);
         purchaseBtn.setOnClickListener(new View.OnClickListener() {
@@ -220,7 +217,7 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
                         imageDB.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                String imageUrl = snapshot.getValue(String.class);
+                                imageUrl = snapshot.getValue(String.class);
                                 ImageView_photo = findViewById(R.id.ImageView_photo);
 //                                ImageView_photo.setImageURI(Uri.parse(imageUrl));
 
@@ -318,6 +315,19 @@ public class MyPageMain<CircularImageView> extends AppCompatActivity {
             }
         });
 
+        ChangemypageBtn=findViewById(R.id.changemypageBtn);
+
+        ChangemypageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(MyPageMain.this,ChangeSettingActivity.class);
+                intent.putExtra("user_nickName",nickName);
+                intent.putExtra("user_email",email);
+                intent.putExtra("user_image",imageUrl);
+                startActivity(intent);
+
+            }
+        });
 
 
         //하단바
