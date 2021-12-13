@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.hbp_app">
+    package="Hi.BuyPhotocard.hbpApp">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA"/>
@@ -17,7 +17,7 @@
         android:roundIcon="@mipmap/hbp_ic"
         android:supportsRtl="true"
         android:theme="@style/Theme.HBP_App" >
-        <activity android:name=".IntroActivity">
+        <activity android:name="Hi.BuyPhotocard.hbpApp.IntroActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,48 +25,48 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".LoginActivity" />
-        <activity android:name=".MainActivity" />
-        <activity android:name=".SignUpActivity" />
-        <activity android:name=".SettingActivity" />
-        <activity android:name=".FindInfoActivity"
+        <activity android:name="Hi.BuyPhotocard.hbpApp.LoginActivity" />
+        <activity android:name="Hi.BuyPhotocard.hbpApp.MainActivity" />
+        <activity android:name="Hi.BuyPhotocard.hbpApp.SignUpActivity" />
+        <activity android:name="Hi.BuyPhotocard.hbpApp.SettingActivity" />
+        <activity android:name="Hi.BuyPhotocard.hbpApp.FindInfoActivity"
             />
-        <activity android:name=".MyPageMain"/>
-        <activity android:name=".PushSettingActivity"/>
-        <activity android:name=".ChangeSettingActivity"/>
+        <activity android:name="Hi.BuyPhotocard.hbpApp.MyPageMain"/>
+        <activity android:name="Hi.BuyPhotocard.hbpApp.PushSettingActivity"/>
+        <activity android:name="Hi.BuyPhotocard.hbpApp.ChangeSettingActivity"/>
 
-        <activity android:name=".SettingResultActivity"/>
-        <activity android:name=".SearchResultActivity"/>
+        <activity android:name="Hi.BuyPhotocard.hbpApp.SettingResultActivity"/>
+        <activity android:name="Hi.BuyPhotocard.hbpApp.SearchResultActivity"/>
 
         <!--        <activity android:name=".MyPageMain"/>-->
         <!--        <activity android:name=".PushSettingActivity"/>-->
 
         <!--        <activity android:name=".FragmentActivity"/>-->
-        <activity android:name=".MessageActivity"/>
-        <activity android:name=".FragmentActivity2">
+        <activity android:name="Hi.BuyPhotocard.hbpApp.MessageActivity"/>
+        <activity android:name="Hi.BuyPhotocard.hbpApp.FragmentActivity2">
 
         </activity>
-        <activity android:name=".SellMainActivity"/>
+        <activity android:name="Hi.BuyPhotocard.hbpApp.SellMainActivity"/>
 
-        <activity android:name=".SellItemActivity"/>
+        <activity android:name="Hi.BuyPhotocard.hbpApp.SellItemActivity"/>
 
-        <activity android:name=".BuyMainActivity"/>
+        <activity android:name="Hi.BuyPhotocard.hbpApp.BuyMainActivity"/>
 
-        <activity android:name=".BuyItemActivity"/>
+        <activity android:name="Hi.BuyPhotocard.hbpApp.BuyItemActivity"/>
 
-        <activity android:name=".ratingActivity"/>
+        <activity android:name="Hi.BuyPhotocard.hbpApp.ratingActivity"/>
 
-        <activity android:name=".WritingActivity"/>
+        <activity android:name="Hi.BuyPhotocard.hbpApp.WritingActivity"/>
 
 
-        <activity android:name=".NoResultActivity"/>
+        <activity android:name="Hi.BuyPhotocard.hbpApp.NoResultActivity"/>
 
-        <activity android:name=".WishListActivity"/>
+        <activity android:name="Hi.BuyPhotocard.hbpApp.WishListActivity"/>
 
-        <activity android:name=".SellPageActivity"/>
-        <activity android:name=".TagDialogActivity"
+        <activity android:name="Hi.BuyPhotocard.hbpApp.SellPageActivity"/>
+        <activity android:name="Hi.BuyPhotocard.hbpApp.TagDialogActivity"
             tools:ignore="Instantiatable" />
-        <activity android:name=".TaggingActivity"/>
+        <activity android:name="Hi.BuyPhotocard.hbpApp.TaggingActivity"/>
 
         <activity
             android:name="com.soundcloud.android.crop.CropImageActivity"
@@ -76,7 +76,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.hibuyphotocard.fileprovider"
+            android:authorities="Hi.BuyPhotocard.hbpApp.fileprovider"
             android:exported="false" android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
