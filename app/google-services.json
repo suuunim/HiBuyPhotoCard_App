@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:960791680824:android:1520cd48a32ef6735fd3cd",
         "android_client_info": {
-          "package_name": "com.example.hibuyphotocard"
+          "package_name": "hi.buyphotocard.hbpApp"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "960791680824-22936pjb36c8qicj1e4864pdppudinm7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.hibuyphotocard",
+            "package_name": "hi.buyphotocard.hbpApp",
             "certificate_hash": "047ac729ab21348db49a6c329c00b6fc29c675a4"
           }
         },
@@ -26,7 +26,7 @@
           "client_id": "960791680824-ss37snsb6bq9r580hse5u12o2g1svtjd.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.hibuyphotocard",
+            "package_name": "hi.buyphotocard.hbpApp",
             "certificate_hash": "e939b7c20b950cf73103a621e27c75929e119755"
           }
         },
